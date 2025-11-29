@@ -90,3 +90,7 @@ QAstell is available under a tiered licensing model:
 - **Corporate**: Unlimited scans, all report formats including SARIF
 
 See [pricing](https://qastell.eu/index.html#pricing) for details.
+
+---
+
+Made with ❤️ in the EU — for the environment, the people, and diversity.
