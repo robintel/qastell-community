@@ -6,11 +6,11 @@ This directory contains example code demonstrating how to use QAstell for securi
 
 | Example | Description |
 |---------|-------------|
-| [basic-audit.spec.ts](./basic-audit.spec.ts) | Simple security audit with default settings |
-| [custom-thresholds.spec.ts](./custom-thresholds.spec.ts) | Configure severity thresholds to allow some violations |
-| [category-filtering.spec.ts](./category-filtering.spec.ts) | Include/exclude specific rule categories |
-| [html-report.spec.ts](./html-report.spec.ts) | Generate and save HTML reports |
-| [ci-integration.spec.ts](./ci-integration.spec.ts) | CI/CD pipeline integration patterns |
+| [basic-audit.spec.ts](./examples/basic-audit.spec.ts) | Simple security audit with default settings |
+| [custom-thresholds.spec.ts](./examples/custom-thresholds.spec.ts) | Configure severity thresholds to allow some violations |
+| [category-filtering.spec.ts](./examples/category-filtering.spec.ts) | Include/exclude specific rule categories |
+| [html-report.spec.ts](./examples/html-report.spec.ts) | Generate and save HTML reports |
+| [ci-integration.spec.ts](./examples/ci-integration.spec.ts) | CI/CD pipeline integration patterns |
 
 ## Getting Started
 
