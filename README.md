@@ -93,4 +93,4 @@ See [pricing](https://qastell.eu/index.html#pricing) for details.
 
 ---
 
-Made with ❤️ in the EU — for the environment, the people, and diversity.
+Made in the 🇪🇺 with ❤️ for people, environment, and [diversity](https://x.com/eeldenden/status/1950639923632971784).
