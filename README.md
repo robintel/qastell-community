@@ -49,6 +49,8 @@ Instead, QAstell fills a gap: **continuous, automated detection of common client
 
 ## Quick Start
 
+**Start free - no license or registration required.** Just install and run:
+
 ```bash
 npm install qastell
 ```
