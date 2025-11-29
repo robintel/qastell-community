@@ -77,8 +77,8 @@ See the [examples](./EXAMPLES.md) for detailed usage patterns including:
 ## Learn More
 
 - [Website](https://qastell.eu)
-- [Pricing](https://qastell.eu/pricing)
-- [Report Issues](https://github.com/robintel/QAstell-community/issues)
+- [Pricing](https://qastell.eu/index.html#pricing)
+- [Report Issues](https://github.com/robintel/qastell-community/issues)
 
 ## License
 
@@ -87,4 +87,4 @@ QAstell is available under a tiered licensing model:
 - **Enterprise**: 100 scans/day, HTML + JSON reports
 - **Corporate**: Unlimited scans, all report formats including SARIF
 
-See [pricing](https://qastell.eu/pricing) for details.
+See [pricing](https://qastell.eu/index.html#pricing) for details.

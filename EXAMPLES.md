@@ -43,5 +43,5 @@ initLicense(process.env.QASTELL_LICENSE);
 
 ## Need Help?
 
-- [Report issues](https://github.com/robintel/QAstell-community/issues)
-- [View pricing](https://qastell.eu/pricing)
+- [Report issues](https://github.com/robintel/qastell-community/issues)
+- [View pricing](https://qastell.eu/index.html#pricing)

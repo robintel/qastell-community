@@ -81,4 +81,49 @@ test.describe('Security Audit with Thresholds', () => {
       ],
     });
   });
+
+  test('per-rule thresholds for granular control', async ({ page }) => {
+    await page.goto('https://your-app.com');
+
+    const auditor = new SecurityAuditor(page);
+
+    // Set different thresholds for specific rules
+    await auditor.assertNoViolations({
+      ruleThresholds: {
+        'missing-sri-attribute': 5,    // Allow up to 5 missing SRI attributes
+        'inline-event-handlers': 10,   // Allow up to 10 inline handlers (legacy code)
+        'missing-csp-header': 1,       // Allow 1 missing CSP (multi-page app)
+      },
+      // Severity thresholds as fallback for rules not in ruleThresholds
+      thresholds: {
+        info: 999,
+        low: 0,
+        medium: 0,
+        high: 0,
+        critical: 0,
+      },
+    });
+  });
+
+  test('combine per-rule and severity thresholds', async ({ page }) => {
+    await page.goto('https://your-app.com');
+
+    const auditor = new SecurityAuditor(page);
+
+    await auditor.assertNoViolations({
+      // Per-rule thresholds take precedence
+      ruleThresholds: {
+        'missing-sri-attribute': 3,    // Known issue: 3 CDN scripts without SRI
+        'cookie-without-secure': 2,    // Tracked in JIRA-456
+      },
+      // Everything else follows severity thresholds
+      thresholds: {
+        info: 50,
+        low: 10,
+        medium: 0,
+        high: 0,
+        critical: 0,
+      },
+    });
+  });
 });
