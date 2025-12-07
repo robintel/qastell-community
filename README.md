@@ -6,7 +6,7 @@
 
 QAstell is a security audit library that integrates directly into your Playwright test suite. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
 
-With 152 security rules across 41 categories, QAstell checks for issues like:
+With 272 security rules across 48 categories, QAstell checks for issues like:
 - Missing or misconfigured security headers (CSP, X-Frame-Options, etc.)
 - Unsafe form configurations (autocomplete on passwords, missing CSRF tokens)
 - Insecure external links (missing `rel="noopener"`)
