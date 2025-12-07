@@ -51,7 +51,9 @@ Instead, QAstell fills a gap: **continuous, automated detection of common client
 
 ## Quick Start
 
-**Start free - no license or registration required.** Just install and run:
+**Start free - no license or registration required.**
+
+### Option 1: Add to an existing Playwright project
 
 ```bash
 npm install qastell
@@ -67,6 +69,26 @@ test('security audit', async ({ page }) => {
   const auditor = new SecurityAuditor(page);
   await auditor.assertNoViolations();
 });
+```
+
+### Option 2: Try it now (from terminal)
+
+```bash
+mkdir qastell-demo && cd qastell-demo
+npm init -y
+npm install qastell @playwright/test
+npx playwright install chromium
+cat > quickstart.spec.ts << 'EOF'
+import { test } from '@playwright/test';
+import { SecurityAuditor } from 'qastell';
+test('security audit', async ({ page }) => {
+  await page.goto('https://qastell.eu');
+  const auditor = new SecurityAuditor(page);
+  const results = await auditor.audit();
+  console.log(`Found ${results.summary.total} issues`);
+});
+EOF
+npx playwright test quickstart.spec.ts --reporter=list
 ```
 
 ## Examples
