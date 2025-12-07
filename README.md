@@ -1,6 +1,8 @@
 # QAstell
 
-**Security auditing for Playwright - Shift security left into your test automation.**
+![QAstell - Security Auditing for Playwright](og-image.png)
+
+**Security auditing for Playwright - Fortify your defenses.**
 
 ## What is QAstell?
 
@@ -79,6 +81,7 @@ See the [examples](./EXAMPLES.md) for detailed usage patterns including:
 ## Learn More
 
 - [Website](https://qastell.eu)
+- [Documentation](https://qastell.eu/docs.html)
 - [Pricing](https://qastell.eu/index.html#pricing)
 - [Report Issues](https://github.com/robintel/qastell-community/issues)
 
