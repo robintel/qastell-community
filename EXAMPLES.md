@@ -11,6 +11,7 @@ This directory contains example code demonstrating how to use QAstell for securi
 | [category-filtering.spec.ts](./examples/category-filtering.spec.ts) | Include/exclude specific rule categories |
 | [html-report.spec.ts](./examples/html-report.spec.ts) | Generate and save HTML reports |
 | [ci-integration.spec.ts](./examples/ci-integration.spec.ts) | CI/CD pipeline integration patterns |
+| [env-config.spec.ts](./examples/env-config.spec.ts) | Load license key from .env file |
 
 ## Getting Started
 
@@ -28,18 +29,63 @@ This directory contains example code demonstrating how to use QAstell for securi
 
 ## License Configuration
 
-Set your license key via environment variable:
+QAstell works out of the box with the Free tier (no license required). For Enterprise or Corporate tiers, configure your license key using one of these methods:
+
+### Option 1: Environment Variable (Recommended)
+
+**Linux/macOS:**
 ```bash
-QASTELL_LICENSE="your-key" npx playwright test
+export QASTELL_LICENSE="your-license-key"
+npx playwright test
 ```
 
-Or initialize in your test setup:
+**Windows (PowerShell):**
+```powershell
+$env:QASTELL_LICENSE="your-license-key"
+npx playwright test
+```
+
+**Windows (Command Prompt):**
+```cmd
+set QASTELL_LICENSE=your-license-key
+npx playwright test
+```
+
+**Inline (any platform):**
+```bash
+QASTELL_LICENSE="your-license-key" npx playwright test
+```
+
+### Option 2: .env File
+
+Copy the provided [`.env.example`](./.env.example) to `.env` and replace the placeholder:
+```bash
+cp .env.example .env
+# Edit .env and replace 'your-license-key-here' with your actual key
+```
+
+Then load it in your `playwright.config.ts`:
+```typescript
+import 'dotenv/config';
+```
+
+### Option 3: Programmatic Initialization
+
 ```typescript
 import { initLicense } from 'qastell';
 
 // In playwright.config.ts or global setup
 initLicense(process.env.QASTELL_LICENSE);
 ```
+
+### CI/CD Integration
+
+Most CI/CD platforms support secrets or environment variables:
+
+- **GitHub Actions:** Add `QASTELL_LICENSE` to repository secrets
+- **GitLab CI:** Add to CI/CD variables (masked)
+- **Jenkins:** Use credentials binding
+- **Azure DevOps:** Add to pipeline variables (secret)
 
 ## Need Help?
 
