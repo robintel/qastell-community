@@ -13,6 +13,7 @@ This directory contains example code demonstrating how to use QAstell for securi
 | [html-report.spec.ts](./playwright/html-report.spec.ts) | Generate and save HTML reports |
 | [ci-integration.spec.ts](./playwright/ci-integration.spec.ts) | CI/CD pipeline integration patterns |
 | [env-config.spec.ts](./playwright/env-config.spec.ts) | Load license key from .env file |
+| [advanced-config.spec.ts](./playwright/advanced-config.spec.ts) | Framework detection, custom rules, version info |
 
 **Run Playwright examples:**
 ```bash
@@ -31,6 +32,7 @@ npx playwright test quickstart.spec.ts --reporter=list
 | [html-report.ts](./puppeteer/html-report.ts) | Generate and save HTML reports |
 | [jest-integration.test.ts](./puppeteer/jest-integration.test.ts) | Jest test suite integration |
 | [env-config.ts](./puppeteer/env-config.ts) | Load license key from .env file |
+| [advanced-config.ts](./puppeteer/advanced-config.ts) | Framework detection, custom rules, version info |
 
 **Run Puppeteer examples:**
 ```bash
