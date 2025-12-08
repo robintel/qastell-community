@@ -1,12 +1,12 @@
 # QAstell
 
-![QAstell - Security Auditing for Playwright](og-image.png)
+![QAstell - Security Auditing for Playwright & Puppeteer](og-image.png)
 
-**Security auditing for Playwright - Fortify your defenses.**
+**Security auditing for Playwright & Puppeteer - Fortify your defenses.**
 
 ## What is QAstell?
 
-QAstell is a security audit library that integrates directly into your Playwright test suite. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
+QAstell is a security audit library that integrates directly into your Playwright tests or Puppeteer scripts. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
 
 With 272 security rules across 48 categories, QAstell checks for issues like:
 - Missing or misconfigured security headers (CSP, X-Frame-Options, etc.)
@@ -23,7 +23,7 @@ With 272 security rules across 48 categories, QAstell checks for issues like:
 
 Traditional security testing happens late in the development cycle - often just before release or during dedicated security audits. By this point, vulnerabilities are expensive to fix and may delay releases.
 
-**QAstell enables security shift-left** by integrating security checks directly into your existing Playwright tests. This means:
+**QAstell enables security shift-left** by integrating security checks directly into your existing tests. This means:
 
 - **SDETs and QA engineers** can identify potential security issues during regular test runs
 - **Developers** get immediate feedback when they introduce security regressions
@@ -53,7 +53,7 @@ Instead, QAstell fills a gap: **continuous, automated detection of common client
 
 **Start free - no license or registration required.**
 
-### Option 1: Add to an existing Playwright project
+### Playwright
 
 ```bash
 npm install qastell
@@ -71,8 +71,29 @@ test('security audit', async ({ page }) => {
 });
 ```
 
-### Option 2: Try it now (from terminal)
+### Puppeteer
 
+```bash
+npm install qastell puppeteer
+```
+
+```typescript
+import puppeteer from 'puppeteer';
+import { SecurityAuditor } from 'qastell';
+
+const browser = await puppeteer.launch();
+const page = await browser.newPage();
+await page.goto('https://your-app.com');
+
+const auditor = new SecurityAuditor(page);
+await auditor.assertNoViolations();
+
+await browser.close();
+```
+
+### Try It Now (from terminal)
+
+**Playwright:**
 ```bash
 mkdir qastell-demo && cd qastell-demo
 npm init -y
@@ -91,6 +112,27 @@ EOF
 npx playwright test quickstart.spec.ts --reporter=list
 ```
 
+**Puppeteer:**
+```bash
+mkdir qastell-demo && cd qastell-demo
+npm init -y
+npm install qastell puppeteer typescript ts-node @types/node
+cat > quickstart.ts << 'EOF'
+import puppeteer from 'puppeteer';
+import { SecurityAuditor } from 'qastell';
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto('https://qastell.eu');
+  const auditor = new SecurityAuditor(page);
+  const results = await auditor.audit();
+  console.log(`Found ${results.summary.total} issues`);
+  await browser.close();
+})();
+EOF
+npx ts-node quickstart.ts
+```
+
 ## Examples
 
 See the [examples](./EXAMPLES.md) for detailed usage patterns including:
@@ -99,11 +141,14 @@ See the [examples](./EXAMPLES.md) for detailed usage patterns including:
 - Category filtering
 - HTML report generation
 - CI/CD integration
+- Jest integration (Puppeteer)
 
 ## Learn More
 
 - [Website](https://qastell.eu)
 - [Documentation](https://qastell.eu/docs.html)
+- [Playwright Guide](https://qastell.eu/docs-playwright.html)
+- [Puppeteer Guide](https://qastell.eu/docs-puppeteer.html)
 - [Pricing](https://qastell.eu/index.html#pricing)
 - [Report Issues](https://github.com/robintel/qastell-community/issues)
 
