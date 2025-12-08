@@ -2,6 +2,18 @@
 
 Security auditing examples for Playwright test framework.
 
+## Try It Now - One Command
+
+Copy, paste, run:
+
+```bash
+npx -y create-playwright@latest qastell-demo --quiet && cd qastell-demo && npm i qastell && echo 'import{test}from"@playwright/test";import{SecurityAuditor}from"qastell";test("security",async({page})=>{await page.goto("https://example.com");const a=new SecurityAuditor(page);const r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);});' > tests/security.spec.ts && npx playwright test security --reporter=list
+```
+
+> **Security tip:** Always review commands before running them. This installs packages from npm and executes code.
+
+> **Note:** First-time Playwright users may need to run `sudo npx playwright install-deps` to install system dependencies.
+
 ## Quick Start
 
 ```bash

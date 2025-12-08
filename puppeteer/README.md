@@ -2,6 +2,16 @@
 
 Security auditing examples for Puppeteer browser automation.
 
+## Try It Now - One Command
+
+Copy, paste, run:
+
+```bash
+mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell puppeteer && node -e 'const p=require("puppeteer"),{SecurityAuditor}=require("qastell");(async()=>{const b=await p.launch(),pg=await b.newPage();await pg.goto("https://example.com");const a=new SecurityAuditor(pg),r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);await b.close()})();'
+```
+
+> **Security tip:** Always review commands before running them. This installs packages from npm and executes code.
+
 ## Quick Start
 
 ```bash

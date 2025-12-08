@@ -49,6 +49,28 @@ Instead, QAstell fills a gap: **continuous, automated detection of common client
 - **Small teams** without dedicated security resources who want basic coverage
 - **Anyone** who believes security is everyone's responsibility
 
+## Try It Now - 30 Seconds
+
+**No setup needed. Copy, paste, run.**
+
+### Playwright (one command)
+
+```bash
+npx -y create-playwright@latest qastell-demo --quiet && cd qastell-demo && npm i qastell && echo 'import{test}from"@playwright/test";import{SecurityAuditor}from"qastell";test("security",async({page})=>{await page.goto("https://example.com");const a=new SecurityAuditor(page);const r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);});' > tests/security.spec.ts && npx playwright test security --reporter=list
+```
+
+### Puppeteer (one command)
+
+```bash
+mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell puppeteer && node -e 'const p=require("puppeteer"),{SecurityAuditor}=require("qastell");(async()=>{const b=await p.launch(),pg=await b.newPage();await pg.goto("https://example.com");const a=new SecurityAuditor(pg),r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);await b.close()})();'
+```
+
+> **Security tip:** Always review commands before running them. These one-liners install packages from npm and execute code - read them first to understand what they do.
+
+> **Note:** First-time Playwright users may need to run `sudo npx playwright install-deps` to install system dependencies.
+
+---
+
 ## Quick Start
 
 **Start free - no license or registration required.**
@@ -91,9 +113,11 @@ await auditor.assertNoViolations();
 await browser.close();
 ```
 
-### Try It Now (from terminal)
+### Extended Examples (multi-line)
 
-**Playwright:**
+<details>
+<summary><strong>Playwright - Full Example</strong></summary>
+
 ```bash
 mkdir qastell-demo && cd qastell-demo
 npm init -y
@@ -112,7 +136,11 @@ EOF
 npx playwright test quickstart.spec.ts --reporter=list
 ```
 
-**Puppeteer:**
+</details>
+
+<details>
+<summary><strong>Puppeteer - Full Example</strong></summary>
+
 ```bash
 mkdir qastell-demo && cd qastell-demo
 npm init -y
@@ -132,6 +160,8 @@ import { SecurityAuditor } from 'qastell';
 EOF
 npx ts-node quickstart.ts
 ```
+
+</details>
 
 ## Examples
 
