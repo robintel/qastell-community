@@ -2,13 +2,13 @@
 
 ![QAstell - Security Auditing for Playwright & Puppeteer](og-image.png)
 
-**Security auditing for Playwright & Puppeteer - Fortify your defenses.**
+**Security auditing for Playwright, Puppeteer & Selenium WebDriver - Fortify your defenses.**
 
 ## What is QAstell?
 
-QAstell is a security audit library that integrates directly into your Playwright tests or Puppeteer scripts. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
+QAstell is a security audit library that integrates directly into your Playwright tests, Puppeteer scripts, or Selenium WebDriver automation. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
 
-With 272 security rules across 48 categories, QAstell checks for issues like:
+With 250+ security rules across 48 categories, QAstell checks for issues like:
 - Missing or misconfigured security headers (CSP, X-Frame-Options, etc.)
 - Unsafe form configurations (autocomplete on passwords, missing CSRF tokens)
 - Insecure external links (missing `rel="noopener"`)
@@ -65,6 +65,12 @@ npx -y create-playwright@latest qastell-demo --quiet && cd qastell-demo && npm i
 mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell puppeteer && node -e 'const p=require("puppeteer"),{SecurityAuditor}=require("qastell");(async()=>{const b=await p.launch(),pg=await b.newPage();await pg.goto("https://example.com");const a=new SecurityAuditor(pg),r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);await b.close()})();'
 ```
 
+### Selenium WebDriver (one command)
+
+```bash
+mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell selenium-webdriver && node -e 'const{Builder}=require("selenium-webdriver"),{SecurityAuditor}=require("qastell");(async()=>{const d=await new Builder().forBrowser("chrome").build();await d.get("https://example.com");const a=new SecurityAuditor(d),r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);await d.quit()})();'
+```
+
 > **Security tip:** Always review commands before running them. These one-liners install packages from npm and execute code - read them first to understand what they do.
 
 > **Note:** First-time Playwright users may need to run `sudo npx playwright install-deps` to install system dependencies.
@@ -111,6 +117,25 @@ const auditor = new SecurityAuditor(page);
 await auditor.assertNoViolations();
 
 await browser.close();
+```
+
+### Selenium WebDriver
+
+```bash
+npm install qastell selenium-webdriver
+```
+
+```typescript
+import { Builder } from 'selenium-webdriver';
+import { SecurityAuditor } from 'qastell';
+
+const driver = await new Builder().forBrowser('chrome').build();
+await driver.get('https://your-app.com');
+
+const auditor = new SecurityAuditor(driver);
+await auditor.assertNoViolations();
+
+await driver.quit();
 ```
 
 ### Extended Examples (multi-line)
@@ -163,6 +188,30 @@ npx ts-node quickstart.ts
 
 </details>
 
+<details>
+<summary><strong>Selenium WebDriver - Full Example</strong></summary>
+
+```bash
+mkdir qastell-demo && cd qastell-demo
+npm init -y
+npm install qastell selenium-webdriver typescript ts-node @types/node
+cat > quickstart.ts << 'EOF'
+import { Builder } from 'selenium-webdriver';
+import { SecurityAuditor } from 'qastell';
+(async () => {
+  const driver = await new Builder().forBrowser('chrome').build();
+  await driver.get('https://qastell.eu');
+  const auditor = new SecurityAuditor(driver);
+  const results = await auditor.audit();
+  console.log(`Found ${results.summary.total} issues`);
+  await driver.quit();
+})();
+EOF
+npx ts-node quickstart.ts
+```
+
+</details>
+
 ## Examples
 
 See the [examples](./EXAMPLES.md) for detailed usage patterns including:
@@ -179,6 +228,7 @@ See the [examples](./EXAMPLES.md) for detailed usage patterns including:
 - [Documentation](https://qastell.eu/docs.html)
 - [Playwright Guide](https://qastell.eu/docs-playwright.html)
 - [Puppeteer Guide](https://qastell.eu/docs-puppeteer.html)
+- [WebDriver Guide](https://qastell.eu/docs-webdriver.html)
 - [Pricing](https://qastell.eu/index.html#pricing)
 - [Report Issues](https://github.com/robintel/qastell-community/issues)
 

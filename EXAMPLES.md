@@ -1,6 +1,6 @@
 # QAstell Examples
 
-This directory contains example code demonstrating how to use QAstell for security auditing with both Playwright and Puppeteer.
+This directory contains example code demonstrating how to use QAstell for security auditing with Playwright, Puppeteer, and Selenium WebDriver.
 
 ## Playwright Examples
 
@@ -44,6 +44,27 @@ npx ts-node puppeteer/quickstart.ts
 npx jest puppeteer/jest-integration.test.ts
 ```
 
+## Selenium WebDriver Examples
+
+| Example | Description |
+|---------|-------------|
+| [quickstart.ts](./webdriver/quickstart.ts) | Quick start example with console output |
+| [basic-audit.ts](./webdriver/basic-audit.ts) | Simple security audit with default settings |
+| [custom-thresholds.ts](./webdriver/custom-thresholds.ts) | Configure severity thresholds to allow some violations |
+| [category-filtering.ts](./webdriver/category-filtering.ts) | Include/exclude specific rule categories |
+| [html-report.ts](./webdriver/html-report.ts) | Generate and save HTML reports |
+| [env-config.ts](./webdriver/env-config.ts) | Load license key from .env file |
+| [advanced-config.ts](./webdriver/advanced-config.ts) | Framework detection, custom rules, version info |
+
+**Run WebDriver examples:**
+```bash
+npx ts-node webdriver/quickstart.ts
+```
+
+> **Note:** WebDriver requires ChromeDriver (or another browser driver) to be installed and available in PATH. See [selenium-webdriver documentation](https://www.selenium.dev/documentation/webdriver/getting_started/) for setup instructions.
+
+> **Note:** WebDriver cannot access HTTP response headers, so the `headers`, `csp`, and `cors` categories will not detect issues when using WebDriver.
+
 ## Getting Started
 
 ### Playwright
@@ -70,6 +91,22 @@ npx jest puppeteer/jest-integration.test.ts
 2. Copy any example from `puppeteer/` to your project
 
 3. Run with ts-node or compile and run:
+   ```bash
+   npx ts-node your-script.ts
+   ```
+
+### Selenium WebDriver
+
+1. Install QAstell and selenium-webdriver:
+   ```bash
+   npm install qastell selenium-webdriver
+   ```
+
+2. Ensure you have a browser driver installed (e.g., ChromeDriver for Chrome)
+
+3. Copy any example from `webdriver/` to your project
+
+4. Run with ts-node or compile and run:
    ```bash
    npx ts-node your-script.ts
    ```
@@ -148,5 +185,6 @@ Most CI/CD platforms support secrets or environment variables:
 
 - [Playwright Documentation](https://qastell.eu/docs-playwright.html)
 - [Puppeteer Documentation](https://qastell.eu/docs-puppeteer.html)
+- [WebDriver Documentation](https://qastell.eu/docs-webdriver.html)
 - [Report issues](https://github.com/robintel/qastell-community/issues)
 - [View pricing](https://qastell.eu/index.html#pricing)
