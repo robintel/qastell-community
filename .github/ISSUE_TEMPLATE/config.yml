@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://qastell.eu/docs.html
+    about: Check the documentation before opening an issue
+  - name: Purchase a License
+    url: https://qastell.eu/#pricing
+    about: Upgrade to Enterprise or Corporate for priority support

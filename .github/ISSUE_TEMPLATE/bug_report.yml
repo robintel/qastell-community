@@ -1,0 +1,71 @@
+name: Bug Report
+description: Report a bug or issue with QAstell
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: dropdown
+    id: license
+    attributes:
+      label: License Tier
+      description: What license tier are you using?
+      options:
+        - Free
+        - Enterprise
+        - Corporate
+    validations:
+      required: true
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      description: Which test framework are you using?
+      options:
+        - Playwright
+        - Puppeteer
+        - Cypress
+        - Selenium WebDriver
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: QAstell Version
+      description: "What version of QAstell are you using? Run `npm ls qastell` or check your package.json"
+      placeholder: "e.g., 0.4.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear description of the bug
+      placeholder: What happened? What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Create a test with...
+        2. Run the audit...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please provide your environment details
+      placeholder: |
+        - OS: [e.g., Ubuntu 22.04, Windows 11, macOS 14]
+        - Node.js version: [e.g., 20.10.0]
+        - Framework version: [e.g., Playwright 1.40.0]
+    validations:
+      required: false
