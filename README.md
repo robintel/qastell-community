@@ -2,11 +2,11 @@
 
 ![QAstell - Security Auditing for Playwright & Puppeteer](og-image.png)
 
-**Security auditing for Playwright, Puppeteer, Cypress & Selenium WebDriver - Fortify your defenses.**
+**Security auditing for Playwright, Puppeteer & Selenium WebDriver - Fortify your defenses.**
 
 ## What is QAstell?
 
-QAstell is a security audit library that integrates directly into your Playwright tests, Puppeteer scripts, Cypress tests, or Selenium WebDriver automation. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
+QAstell is a security audit library that integrates directly into your Playwright tests, Puppeteer scripts, or Selenium WebDriver automation. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
 
 With 250+ security rules across 48 categories, QAstell checks for issues like:
 - Missing or misconfigured security headers (CSP, X-Frame-Options, etc.)
@@ -71,28 +71,10 @@ mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell puppete
 mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell selenium-webdriver && node -e 'const{Builder}=require("selenium-webdriver"),{SecurityAuditor}=require("qastell");(async()=>{const d=await new Builder().forBrowser("chrome").build();await d.get("https://example.com");const a=new SecurityAuditor(d),r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);await d.quit()})();'
 ```
 
-### Cypress
-
-Add to your existing Cypress project:
+### Cypress (one command)
 
 ```bash
-npm install qastell
-```
-
-Then create a test:
-
-```typescript
-// cypress/e2e/security.cy.ts
-import { SecurityAuditor } from 'qastell';
-
-it('security audit', () => {
-  cy.visit('https://example.com');
-  cy.window().then(async (win) => {
-    const auditor = new SecurityAuditor(win);
-    const r = await auditor.audit();
-    cy.log(`Issues: ${r.summary.total} | Critical: ${r.summary.bySeverity.critical}`);
-  });
-});
+mkdir -p qastell-demo/cypress/e2e && cd qastell-demo && npm init -y && npm i qastell cypress && echo 'import{defineConfig}from"cypress";export default defineConfig({e2e:{supportFile:false}})' > cypress.config.ts && echo 'import{SecurityAuditor}from"qastell";it("security",()=>{cy.visit("https://example.com");cy.window().then(async(win)=>{const a=new SecurityAuditor(win),r=await a.audit();cy.log("Issues: "+r.summary.total+" | Critical: "+r.summary.bySeverity.critical+" | High: "+r.summary.bySeverity.high)})})' > cypress/e2e/security.cy.ts && npx cypress run --spec cypress/e2e/security.cy.ts
 ```
 
 > **Security tip:** Always review commands before running them. These one-liners install packages from npm and execute code - read them first to understand what they do.
@@ -165,23 +147,18 @@ await driver.quit();
 ### Cypress
 
 ```bash
-npm install qastell cypress
+npm install qastell
 ```
 
 ```typescript
 import { SecurityAuditor } from 'qastell';
 
-describe('Security', () => {
-  it('should pass security audit', () => {
-    cy.visit('https://example.com');
+it('security audit', () => {
+  cy.visit('https://example.com');
 
-    cy.window().then(async (win) => {
-      const auditor = new SecurityAuditor(win);
-      const results = await auditor.audit();
-
-      cy.log(`Found ${results.summary.total} violations`);
-      await auditor.assertNoViolations();
-    });
+  cy.window().then(async (win) => {
+    const auditor = new SecurityAuditor(win);
+    await auditor.assertNoViolations();
   });
 });
 ```
@@ -260,31 +237,6 @@ npx ts-node quickstart.ts
 
 </details>
 
-<details>
-<summary><strong>Cypress - Full Example</strong></summary>
-
-```bash
-mkdir qastell-demo && cd qastell-demo
-npm init -y
-npm install qastell cypress typescript
-cat > cypress/e2e/security.cy.ts << 'EOF'
-import { SecurityAuditor } from 'qastell';
-
-it('security audit', () => {
-  cy.visit('https://qastell.eu');
-
-  cy.window().then(async (win) => {
-    const auditor = new SecurityAuditor(win);
-    const results = await auditor.audit();
-    cy.log(`Found ${results.summary.total} issues`);
-  });
-});
-EOF
-npx cypress run --spec "cypress/e2e/security.cy.ts"
-```
-
-</details>
-
 ## Examples
 
 See the [examples](./EXAMPLES.md) for detailed usage patterns including:
@@ -301,7 +253,6 @@ See the [examples](./EXAMPLES.md) for detailed usage patterns including:
 - [Documentation](https://qastell.eu/docs.html)
 - [Playwright Guide](https://qastell.eu/docs-playwright.html)
 - [Puppeteer Guide](https://qastell.eu/docs-puppeteer.html)
-- [Cypress Guide](https://qastell.eu/docs-cypress.html)
 - [WebDriver Guide](https://qastell.eu/docs-webdriver.html)
 - [Pricing](https://qastell.eu/index.html#pricing)
 - [Report Issues](https://github.com/robintel/qastell-community/issues)

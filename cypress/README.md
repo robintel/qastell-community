@@ -2,9 +2,13 @@
 
 Security auditing examples for Cypress browser automation.
 
-## Try It Now
+## Try It Now (one command)
 
-Add QAstell to your existing Cypress project:
+```bash
+mkdir -p qastell-demo/cypress/e2e && cd qastell-demo && npm init -y && npm i qastell cypress && echo 'import{defineConfig}from"cypress";export default defineConfig({e2e:{supportFile:false}})' > cypress.config.ts && echo 'import{SecurityAuditor}from"qastell";it("security",()=>{cy.visit("https://example.com");cy.window().then(async(win)=>{const a=new SecurityAuditor(win),r=await a.audit();cy.log("Issues: "+r.summary.total+" | Critical: "+r.summary.bySeverity.critical+" | High: "+r.summary.bySeverity.high)})})' > cypress/e2e/security.cy.ts && npx cypress run --spec cypress/e2e/security.cy.ts
+```
+
+Or add to your existing Cypress project:
 
 ```bash
 npm install qastell
