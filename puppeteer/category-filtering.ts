@@ -11,7 +11,7 @@ import { SecurityAuditor } from 'qastell';
 async function includeCategories() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 
@@ -33,7 +33,7 @@ async function includeCategories() {
 async function excludeCategories() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 
@@ -51,7 +51,7 @@ async function excludeCategories() {
 async function skipSpecificRules() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 
@@ -69,7 +69,7 @@ async function skipSpecificRules() {
 async function focusOnHeaders() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 
@@ -89,7 +89,7 @@ async function focusOnHeaders() {
 async function focusOnClientSide() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 

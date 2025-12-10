@@ -18,7 +18,7 @@ if (!fs.existsSync(reportsDir)) {
 
 test.describe('Security Reports', () => {
   test('generate HTML report for a single page', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
@@ -37,7 +37,7 @@ test.describe('Security Reports', () => {
   });
 
   test('generate timestamped reports', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
@@ -52,9 +52,9 @@ test.describe('Security Reports', () => {
 
   test('generate reports for multiple pages', async ({ page }) => {
     const pages = [
-      { url: 'https://your-app.com/', name: 'homepage' },
-      { url: 'https://your-app.com/login', name: 'login' },
-      { url: 'https://your-app.com/dashboard', name: 'dashboard' },
+      { url: 'https://example.com/', name: 'homepage' },
+      { url: 'https://example.com/login', name: 'login' },
+      { url: 'https://example.com/dashboard', name: 'dashboard' },
     ];
 
     const auditor = new SecurityAuditor(page);
@@ -71,7 +71,7 @@ test.describe('Security Reports', () => {
   });
 
   test('conditional reporting based on findings', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
@@ -95,7 +95,7 @@ test.describe('Security Reports', () => {
 
 test.describe('JSON Reports (Enterprise+)', () => {
   test('generate JSON report for automation', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
@@ -114,7 +114,7 @@ test.describe('JSON Reports (Enterprise+)', () => {
 
 test.describe('SARIF Reports (Corporate)', () => {
   test('generate SARIF for GitHub/GitLab integration', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();

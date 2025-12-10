@@ -10,7 +10,7 @@ import { SecurityAuditor } from 'qastell';
 
 async function allowInfoAndLow() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 
@@ -30,7 +30,7 @@ async function allowInfoAndLow() {
 
 async function gradualAdoption() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 
@@ -73,7 +73,7 @@ async function gradualAdoption() {
 
 async function perRuleThresholds() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 
@@ -99,7 +99,7 @@ async function perRuleThresholds() {
 
 async function allowKnownViolations() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 

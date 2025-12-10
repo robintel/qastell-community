@@ -23,7 +23,7 @@ test.beforeAll(() => {
 test.describe('CI Pipeline Security Scans', () => {
   test('fast smoke test for PRs', async ({ page }) => {
     // Quick scan focusing on critical issues only
-    await page.goto(process.env.APP_URL || 'https://staging.your-app.com');
+    await page.goto(process.env.APP_URL || 'https://staging.example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -42,7 +42,7 @@ test.describe('CI Pipeline Security Scans', () => {
 
   test('comprehensive scan for main branch', async ({ page }) => {
     // Full scan with zero tolerance
-    await page.goto(process.env.APP_URL || 'https://staging.your-app.com');
+    await page.goto(process.env.APP_URL || 'https://staging.example.com');
 
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
@@ -126,7 +126,7 @@ test.describe('Multi-Environment Scanning', () => {
 test.describe('Scheduled Full Scan', () => {
   // Run this on a schedule (e.g., nightly) for comprehensive coverage
   test('full application security scan', async ({ page }) => {
-    const baseUrl = process.env.APP_URL || 'https://your-app.com';
+    const baseUrl = process.env.APP_URL || 'https://example.com';
 
     const pagesToScan = [
       '/',

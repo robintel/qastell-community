@@ -13,7 +13,7 @@ import { SecurityAuditor } from 'qastell';
 
 describe('Security Audit', () => {
   it('should pass basic security audit', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     // Get the window object and run the security audit
     cy.window().then(async (win) => {
@@ -32,9 +32,9 @@ describe('Security Audit', () => {
 
   it('should audit multiple pages', () => {
     const pagesToAudit = [
-      'https://your-app.com/',
-      'https://your-app.com/login',
-      'https://your-app.com/dashboard',
+      'https://example.com/',
+      'https://example.com/login',
+      'https://example.com/dashboard',
     ];
 
     pagesToAudit.forEach((url) => {
@@ -48,7 +48,7 @@ describe('Security Audit', () => {
   });
 
   it('should audit after user interactions', () => {
-    cy.visit('https://your-app.com/login');
+    cy.visit('https://example.com/login');
 
     // Perform login
     cy.get('#email').type('test@example.com');

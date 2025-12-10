@@ -23,7 +23,7 @@ describe('Advanced Security Audit Configuration', () => {
   });
 
   it('should verify Cypress framework detection', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       // Verify framework detection
@@ -38,7 +38,7 @@ describe('Advanced Security Audit Configuration', () => {
   });
 
   it('should use custom rules subset', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       // Get only header-related rules
@@ -56,7 +56,7 @@ describe('Advanced Security Audit Configuration', () => {
   });
 
   it('should use custom rules with high severity only', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       // Get only critical and high severity rules
@@ -79,7 +79,7 @@ describe('Advanced Security Audit Configuration', () => {
   });
 
   it('should force Cypress framework when auto-detection might fail', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       // Force Cypress framework (useful if auto-detection fails)
@@ -93,7 +93,7 @@ describe('Advanced Security Audit Configuration', () => {
   });
 
   it('should combine multiple configuration options', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       const auditor = new SecurityAuditor(win);
@@ -134,7 +134,7 @@ describe('Advanced Security Audit Configuration', () => {
   });
 
   it('should handle audit results programmatically', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       const auditor = new SecurityAuditor(win);

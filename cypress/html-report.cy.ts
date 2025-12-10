@@ -12,7 +12,7 @@ import { SecurityAuditor, HtmlReporter } from 'qastell';
 
 describe('Security Audit with Reports', () => {
   it('should generate HTML report', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       const auditor = new SecurityAuditor(win);
@@ -29,7 +29,7 @@ describe('Security Audit with Reports', () => {
   });
 
   it('should generate report with custom reporter', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       const auditor = new SecurityAuditor(win);
@@ -49,9 +49,9 @@ describe('Security Audit with Reports', () => {
 
   it('should generate report for multiple pages', () => {
     const pages = [
-      { name: 'home', url: 'https://your-app.com/' },
-      { name: 'login', url: 'https://your-app.com/login' },
-      { name: 'dashboard', url: 'https://your-app.com/dashboard' },
+      { name: 'home', url: 'https://example.com/' },
+      { name: 'login', url: 'https://example.com/login' },
+      { name: 'dashboard', url: 'https://example.com/dashboard' },
     ];
 
     pages.forEach((page) => {
@@ -71,7 +71,7 @@ describe('Security Audit with Reports', () => {
   });
 
   it('should generate JSON report for CI integration', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       const auditor = new SecurityAuditor(win);

@@ -37,7 +37,7 @@ import { SecurityAuditor } from 'qastell';
 
 describe('Security', () => {
   it('should pass security audit', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       const auditor = new SecurityAuditor(win);
@@ -179,7 +179,7 @@ const pages = ['/', '/login', '/dashboard'];
 
 pages.forEach((path) => {
   it(`should pass security audit on ${path}`, () => {
-    cy.visit(`https://your-app.com${path}`);
+    cy.visit(`https://example.com${path}`);
 
     cy.window().then(async (win) => {
       const auditor = new SecurityAuditor(win);
@@ -216,7 +216,7 @@ import { defineConfig } from 'cypress';
 
 export default defineConfig({
   e2e: {
-    baseUrl: 'https://your-app.com',
+    baseUrl: 'https://example.com',
     supportFile: false,
   },
 });

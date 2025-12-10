@@ -24,7 +24,7 @@ async function withProgrammaticLicense() {
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
   const results = await auditor.audit();
@@ -53,7 +53,7 @@ async function environmentSpecificConfig() {
 
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
   await auditor.assertNoViolations();

@@ -10,7 +10,7 @@ import { SecurityAuditor } from 'qastell';
 
 test.describe('Security Audit with Thresholds', () => {
   test('allow info-level issues but fail on anything higher', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -27,7 +27,7 @@ test.describe('Security Audit with Thresholds', () => {
   });
 
   test('gradual rollout - start permissive, tighten over time', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -48,7 +48,7 @@ test.describe('Security Audit with Thresholds', () => {
   });
 
   test('allow specific known issues while fixing them', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -62,7 +62,7 @@ test.describe('Security Audit with Thresholds', () => {
   });
 
   test('combine thresholds with allowed violations', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -83,7 +83,7 @@ test.describe('Security Audit with Thresholds', () => {
   });
 
   test('per-rule thresholds for granular control', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -106,7 +106,7 @@ test.describe('Security Audit with Thresholds', () => {
   });
 
   test('combine per-rule and severity thresholds', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 

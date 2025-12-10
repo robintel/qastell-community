@@ -116,7 +116,7 @@ import { test } from '@playwright/test';
 import { SecurityAuditor } from 'qastell';
 
 test('security audit', async ({ page }) => {
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
   await auditor.assertNoViolations();
@@ -135,7 +135,7 @@ import { SecurityAuditor } from 'qastell';
 
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
-await page.goto('https://your-app.com');
+await page.goto('https://example.com');
 
 const auditor = new SecurityAuditor(page);
 await auditor.assertNoViolations();
@@ -154,7 +154,7 @@ import { Builder } from 'selenium-webdriver';
 import { SecurityAuditor } from 'qastell';
 
 const driver = await new Builder().forBrowser('chrome').build();
-await driver.get('https://your-app.com');
+await driver.get('https://example.com');
 
 const auditor = new SecurityAuditor(driver);
 await auditor.assertNoViolations();
@@ -173,7 +173,7 @@ import { SecurityAuditor } from 'qastell';
 
 describe('Security', () => {
   it('should pass security audit', () => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
 
     cy.window().then(async (win) => {
       const auditor = new SecurityAuditor(win);

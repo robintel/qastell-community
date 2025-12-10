@@ -10,7 +10,7 @@ import { SecurityAuditor } from 'qastell';
 
 test.describe('Filtered Security Audits', () => {
   test('scan only for XSS-related issues', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -29,7 +29,7 @@ test.describe('Filtered Security Audits', () => {
   });
 
   test('scan everything except third-party issues', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -43,7 +43,7 @@ test.describe('Filtered Security Audits', () => {
   });
 
   test('focus on header security', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -68,7 +68,7 @@ test.describe('Filtered Security Audits', () => {
   });
 
   test('skip specific rules by ID', async ({ page }) => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
 
@@ -85,19 +85,19 @@ test.describe('Filtered Security Audits', () => {
     const auditor = new SecurityAuditor(page);
 
     // Public pages: focus on headers and links
-    await page.goto('https://your-app.com/');
+    await page.goto('https://example.com/');
     await auditor.assertNoViolations({
       include: ['headers', 'links', 'csp'],
     });
 
     // Login page: focus on forms and sensitive data
-    await page.goto('https://your-app.com/login');
+    await page.goto('https://example.com/login');
     await auditor.assertNoViolations({
       include: ['forms', 'sensitive-data', 'headers'],
     });
 
     // Admin area: full scan
-    await page.goto('https://your-app.com/admin');
+    await page.goto('https://example.com/admin');
     await auditor.assertNoViolations(); // All categories
   });
 });

@@ -31,14 +31,14 @@ describe('Security Audits', () => {
   });
 
   test('homepage should pass security audit', async () => {
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     const auditor = new SecurityAuditor(page);
     await auditor.assertNoViolations();
   });
 
   test('login page should have secure forms', async () => {
-    await page.goto('https://your-app.com/login');
+    await page.goto('https://example.com/login');
 
     const auditor = new SecurityAuditor(page);
     await auditor.assertNoViolations({
@@ -47,7 +47,7 @@ describe('Security Audits', () => {
   });
 
   test('API docs should have proper security headers', async () => {
-    await page.goto('https://your-app.com/api/docs');
+    await page.goto('https://example.com/api/docs');
 
     const auditor = new SecurityAuditor(page);
     await auditor.assertNoViolations({
@@ -56,7 +56,7 @@ describe('Security Audits', () => {
   });
 
   test('should not expose sensitive data in HTML', async () => {
-    await page.goto('https://your-app.com/dashboard');
+    await page.goto('https://example.com/dashboard');
 
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit({
@@ -68,10 +68,10 @@ describe('Security Audits', () => {
 
   test('all pages should pass basic security', async () => {
     const urls = [
-      'https://your-app.com/',
-      'https://your-app.com/login',
-      'https://your-app.com/signup',
-      'https://your-app.com/contact',
+      'https://example.com/',
+      'https://example.com/login',
+      'https://example.com/signup',
+      'https://example.com/contact',
     ];
 
     for (const url of urls) {

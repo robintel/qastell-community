@@ -10,7 +10,7 @@ import { SecurityAuditor } from 'qastell';
 
 async function includeCategories() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 
@@ -31,7 +31,7 @@ async function includeCategories() {
 
 async function excludeCategories() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 
@@ -48,7 +48,7 @@ async function excludeCategories() {
 
 async function skipSpecificRules() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 
@@ -65,7 +65,7 @@ async function skipSpecificRules() {
 
 async function focusOnForms() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 
@@ -86,7 +86,7 @@ async function focusOnForms() {
 
 async function focusOnClientSide() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
 

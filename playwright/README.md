@@ -26,7 +26,7 @@ import { test } from '@playwright/test';
 import { SecurityAuditor } from 'qastell';
 
 test('security audit', async ({ page }) => {
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
   const auditor = new SecurityAuditor(page);
   await auditor.assertNoViolations();
 });

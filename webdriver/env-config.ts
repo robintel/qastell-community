@@ -23,7 +23,7 @@ async function withProgrammaticLicense() {
   initLicense(process.env.QASTELL_LICENSE || process.env.MY_CUSTOM_KEY);
 
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
   const results = await auditor.audit();
@@ -51,7 +51,7 @@ async function environmentSpecificConfig() {
   }
 
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
   await auditor.assertNoViolations();

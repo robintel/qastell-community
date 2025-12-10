@@ -12,7 +12,7 @@ import { SecurityAuditor } from 'qastell';
 
 async function generateBasicReport() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
   const results = await auditor.audit();
@@ -30,7 +30,7 @@ async function generateBasicReport() {
 
 async function generateTimestampedReport() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
   const results = await auditor.audit();
@@ -56,9 +56,9 @@ async function generateMultiPageReport() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
 
   const pagesToAudit = [
-    { name: 'homepage', url: 'https://your-app.com/' },
-    { name: 'login', url: 'https://your-app.com/login' },
-    { name: 'dashboard', url: 'https://your-app.com/dashboard' },
+    { name: 'homepage', url: 'https://example.com/' },
+    { name: 'login', url: 'https://example.com/login' },
+    { name: 'dashboard', url: 'https://example.com/dashboard' },
   ];
 
   // Ensure reports directory exists
@@ -83,7 +83,7 @@ async function generateMultiPageReport() {
 
 async function conditionalReportGeneration() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   const auditor = new SecurityAuditor(driver);
   const results = await auditor.audit();

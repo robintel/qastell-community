@@ -13,7 +13,7 @@ async function basicAudit() {
   const page = await browser.newPage();
 
   // Navigate to your application
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   // Create auditor and run scan
   const auditor = new SecurityAuditor(page);
@@ -35,9 +35,9 @@ async function auditMultiplePages() {
   const page = await browser.newPage();
 
   const pagesToAudit = [
-    'https://your-app.com/',
-    'https://your-app.com/login',
-    'https://your-app.com/dashboard',
+    'https://example.com/',
+    'https://example.com/login',
+    'https://example.com/dashboard',
   ];
 
   for (const url of pagesToAudit) {
@@ -54,7 +54,7 @@ async function auditAfterInteractions() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
 
-  await page.goto('https://your-app.com/login');
+  await page.goto('https://example.com/login');
 
   // Perform login
   await page.type('#email', 'test@example.com');

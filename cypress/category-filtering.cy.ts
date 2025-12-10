@@ -10,7 +10,7 @@ import { SecurityAuditor } from 'qastell';
 
 describe('Security Audit with Category Filtering', () => {
   beforeEach(() => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
   });
 
   it('should only check header-related rules', () => {

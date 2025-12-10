@@ -11,7 +11,7 @@ import { SecurityAuditor } from 'qastell';
 async function allowInfoAndLow() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 
@@ -32,7 +32,7 @@ async function allowInfoAndLow() {
 async function gradualAdoption() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 
@@ -76,7 +76,7 @@ async function gradualAdoption() {
 async function perRuleThresholds() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 
@@ -103,7 +103,7 @@ async function perRuleThresholds() {
 async function allowKnownViolations() {
   const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto('https://your-app.com');
+  await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
 

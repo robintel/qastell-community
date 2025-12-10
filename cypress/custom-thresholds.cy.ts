@@ -10,7 +10,7 @@ import { SecurityAuditor } from 'qastell';
 
 describe('Security Audit with Thresholds', () => {
   beforeEach(() => {
-    cy.visit('https://your-app.com');
+    cy.visit('https://example.com');
   });
 
   it('should allow low severity issues', () => {

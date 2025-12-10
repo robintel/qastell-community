@@ -11,7 +11,7 @@ import { SecurityAuditor } from 'qastell';
 test.describe('Security Audit', () => {
   test('should pass security audit on homepage', async ({ page }) => {
     // Navigate to your application
-    await page.goto('https://your-app.com');
+    await page.goto('https://example.com');
 
     // Create auditor and run scan
     const auditor = new SecurityAuditor(page);
@@ -28,9 +28,9 @@ test.describe('Security Audit', () => {
 
   test('should audit multiple pages', async ({ page }) => {
     const pagesToAudit = [
-      'https://your-app.com/',
-      'https://your-app.com/login',
-      'https://your-app.com/dashboard',
+      'https://example.com/',
+      'https://example.com/login',
+      'https://example.com/dashboard',
     ];
 
     const auditor = new SecurityAuditor(page);
@@ -43,7 +43,7 @@ test.describe('Security Audit', () => {
   });
 
   test('should audit after user interactions', async ({ page }) => {
-    await page.goto('https://your-app.com/login');
+    await page.goto('https://example.com/login');
 
     // Perform login
     await page.fill('#email', 'test@example.com');

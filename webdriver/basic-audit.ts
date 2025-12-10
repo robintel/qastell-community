@@ -12,7 +12,7 @@ async function basicAudit() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
 
   // Navigate to your application
-  await driver.get('https://your-app.com');
+  await driver.get('https://example.com');
 
   // Create auditor and run scan
   const auditor = new SecurityAuditor(driver);
@@ -33,9 +33,9 @@ async function auditMultiplePages() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
 
   const pagesToAudit = [
-    'https://your-app.com/',
-    'https://your-app.com/login',
-    'https://your-app.com/dashboard',
+    'https://example.com/',
+    'https://example.com/login',
+    'https://example.com/dashboard',
   ];
 
   for (const url of pagesToAudit) {
@@ -53,7 +53,7 @@ async function auditMultiplePages() {
 async function auditAfterInteractions() {
   const driver: WebDriver = await new Builder().forBrowser('chrome').build();
 
-  await driver.get('https://your-app.com/login');
+  await driver.get('https://example.com/login');
 
   // Perform login
   const emailField = await driver.findElement({ id: 'email' });

@@ -24,7 +24,7 @@ import { SecurityAuditor } from 'qastell';
 
 const browser = await puppeteer.launch();
 const page = await browser.newPage();
-await page.goto('https://your-app.com');
+await page.goto('https://example.com');
 
 const auditor = new SecurityAuditor(page);
 await auditor.assertNoViolations();
