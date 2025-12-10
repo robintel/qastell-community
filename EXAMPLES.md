@@ -1,6 +1,6 @@
 # QAstell Examples
 
-This directory contains example code demonstrating how to use QAstell for security auditing with Playwright, Puppeteer, and Selenium WebDriver.
+This directory contains example code demonstrating how to use QAstell for security auditing with Playwright, Puppeteer, Cypress, and Selenium WebDriver.
 
 ## Playwright Examples
 
@@ -65,6 +65,27 @@ npx ts-node webdriver/quickstart.ts
 
 > **Note:** WebDriver cannot access HTTP response headers, so the `headers`, `csp`, and `cors` categories will not detect issues when using WebDriver.
 
+## Cypress Examples
+
+| Example | Description |
+|---------|-------------|
+| [quickstart.cy.ts](./cypress/quickstart.cy.ts) | Quick start example with console output |
+| [basic-audit.cy.ts](./cypress/basic-audit.cy.ts) | Simple security audit with default settings |
+| [custom-thresholds.cy.ts](./cypress/custom-thresholds.cy.ts) | Configure severity thresholds to allow some violations |
+| [category-filtering.cy.ts](./cypress/category-filtering.cy.ts) | Include/exclude specific rule categories |
+| [html-report.cy.ts](./cypress/html-report.cy.ts) | Generate and save HTML reports |
+| [advanced-config.cy.ts](./cypress/advanced-config.cy.ts) | Framework detection, custom rules, version info |
+
+**Run Cypress examples:**
+```bash
+cd cypress
+npx cypress run --spec "quickstart.cy.ts"
+```
+
+> **Note:** Cypress runs inside the browser, so you access the DOM through `cy.window()`. Use async/await within the `.then()` callback.
+
+> **Note:** Cypress cannot access HTTP response headers, so ~5 header-related rules are skipped automatically. Cookie inspection is limited to non-httpOnly cookies.
+
 ## Getting Started
 
 ### Playwright
@@ -109,6 +130,20 @@ npx ts-node webdriver/quickstart.ts
 4. Run with ts-node or compile and run:
    ```bash
    npx ts-node your-script.ts
+   ```
+
+### Cypress
+
+1. Install QAstell in your Cypress project:
+   ```bash
+   npm install qastell
+   ```
+
+2. Copy any example from `cypress/` to your `cypress/e2e/` directory
+
+3. Run with Cypress:
+   ```bash
+   npx cypress run --spec "cypress/e2e/security.cy.ts"
    ```
 
 ## License Configuration
@@ -185,6 +220,7 @@ Most CI/CD platforms support secrets or environment variables:
 
 - [Playwright Documentation](https://qastell.eu/docs-playwright.html)
 - [Puppeteer Documentation](https://qastell.eu/docs-puppeteer.html)
+- [Cypress Documentation](https://qastell.eu/docs-cypress.html)
 - [WebDriver Documentation](https://qastell.eu/docs-webdriver.html)
 - [Report issues](https://github.com/robintel/qastell-community/issues)
 - [View pricing](https://qastell.eu/index.html#pricing)
