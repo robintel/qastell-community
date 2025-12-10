@@ -3,6 +3,11 @@ description: Report a bug or issue with QAstell
 title: "[Bug]: "
 labels: ["bug"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ⚠️ **Security Notice**: Please avoid including confidential or sensitive information in your bug report. Stack traces, configuration files, and error logs can contain details that—when combined with other publicly available or leaked data—could potentially be used to compromise systems. Sanitize any code snippets, URLs, file paths, or credentials before posting.
+
   - type: dropdown
     id: license
     attributes:
