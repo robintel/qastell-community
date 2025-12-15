@@ -1,12 +1,14 @@
 # QAstell
 
-![QAstell - Security Auditing for Playwright & Puppeteer](og-image.png)
+![QAstell - Security Auditing for Playwright, Puppeteer, Cypress & Selenium WebDriver](og-image.png)
 
-**Security auditing for Playwright, Puppeteer & Selenium WebDriver - Fortify your defenses.**
+**QA + Castell** - Security auditing for Playwright, Puppeteer, Cypress & Selenium WebDriver - Fortify your defenses.
+
+> **The Name:** Defense is universal. *Castle* in English, *Kastell* in German, *Castell* in Welsh, *Castel* in Romanian – all from Latin *castellum*, the fortress that protects what matters. QAstell brings that same principle to test automation: **a fortress built into your CI/CD pipeline.**
 
 ## What is QAstell?
 
-QAstell is a security audit library that integrates directly into your Playwright tests, Puppeteer scripts, or Selenium WebDriver automation. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
+QAstell is a security audit library that integrates directly into your Playwright tests, Puppeteer scripts, Cypress tests, or Selenium WebDriver automation. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
 
 With 250+ security rules across 48 categories, QAstell checks for issues like:
 - Missing or misconfigured security headers (CSP, X-Frame-Options, etc.)
