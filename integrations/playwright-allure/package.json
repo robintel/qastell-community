@@ -17,7 +17,7 @@
     "allure-playwright": "^3.4.0",
     "allure-js-commons": "^3.4.0",
     "allure-commandline": "^2.32.0",
-    "qastell": "file:../../.."
+    "qastell": "^0.6.1"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",

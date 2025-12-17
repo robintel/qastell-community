@@ -19,7 +19,7 @@
     "@wdio/mocha-framework": "^8.43.0",
     "@wdio/spec-reporter": "^8.43.0",
     "allure-commandline": "^2.32.0",
-    "qastell": "file:../../.."
+    "qastell": "^0.6.1"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.0",

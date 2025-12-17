@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "puppeteer": "^21.0.0",
-    "qastell": "file:../../.."
+    "qastell": "^0.6.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
