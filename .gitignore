@@ -6,3 +6,20 @@ cypress/screenshots/
 cypress/videos/
 cypress/reports/
 cypress/downloads/
+cypress/results/
+
+# Playwright artifacts
+playwright-report/
+test-results/
+
+# Allure artifacts
+allure-results/
+allure-report/
+.allure/
+
+# Jest artifacts
+test-report/
+coverage/
+
+# QAstell output
+qastell-report/
