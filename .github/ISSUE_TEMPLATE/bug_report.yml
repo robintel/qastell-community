@@ -30,15 +30,50 @@ body:
         - Puppeteer
         - Cypress
         - Selenium WebDriver
+        - WebDriverIO
     validations:
       required: true
+
+  - type: input
+    id: framework-version
+    attributes:
+      label: Framework Version
+      description: "What version of your test framework are you using?"
+      placeholder: "e.g., 1.49.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reporter
+    attributes:
+      label: Reporting Mechanism
+      description: Which reporting mechanism are you using?
+      options:
+        - None / Built-in HTML
+        - Allure
+        - Mochawesome
+        - Playwright HTML Reporter
+        - Jest HTML Reporter
+        - Cucumber
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: reporter-version
+    attributes:
+      label: Reporter Version
+      description: "What version of your reporter are you using? (if applicable)"
+      placeholder: "e.g., 3.4.0"
+    validations:
+      required: false
 
   - type: input
     id: version
     attributes:
       label: QAstell Version
       description: "What version of QAstell are you using? Run `npm ls qastell` or check your package.json"
-      placeholder: "e.g., 0.4.0"
+      placeholder: "e.g., 0.6.1"
     validations:
       required: true
 
@@ -71,6 +106,5 @@ body:
       placeholder: |
         - OS: [e.g., Ubuntu 22.04, Windows 11, macOS 14]
         - Node.js version: [e.g., 20.10.0]
-        - Framework version: [e.g., Playwright 1.40.0]
     validations:
       required: false
