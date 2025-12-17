@@ -1,180 +1,71 @@
 # QAstell Examples
 
-This directory contains example code demonstrating how to use QAstell for security auditing with Playwright, Puppeteer, and Selenium WebDriver.
+This directory contains working examples demonstrating how to use QAstell for security auditing with popular test frameworks and reporting tools.
 
-## Playwright Examples
+## Integration Examples
 
-| Example | Description |
-|---------|-------------|
-| [quickstart.spec.ts](./playwright/quickstart.spec.ts) | Quick start example with console output |
-| [basic-audit.spec.ts](./playwright/basic-audit.spec.ts) | Simple security audit with default settings |
-| [custom-thresholds.spec.ts](./playwright/custom-thresholds.spec.ts) | Configure severity thresholds to allow some violations |
-| [category-filtering.spec.ts](./playwright/category-filtering.spec.ts) | Include/exclude specific rule categories |
-| [html-report.spec.ts](./playwright/html-report.spec.ts) | Generate and save HTML reports |
-| [ci-integration.spec.ts](./playwright/ci-integration.spec.ts) | CI/CD pipeline integration patterns |
-| [env-config.spec.ts](./playwright/env-config.spec.ts) | Load license key from .env file |
-| [advanced-config.spec.ts](./playwright/advanced-config.spec.ts) | Framework detection, custom rules, version info |
+See the [integrations/](./integrations/) directory for complete, runnable examples:
 
-**Run Playwright examples:**
+| Example | Description | Quick Start |
+|---------|-------------|-------------|
+| [Playwright + HTML](./integrations/playwright-html/) | Default Playwright reporter with QAstell | `npm test && npm run report` |
+| [Playwright + Allure 3](./integrations/playwright-allure/) | Allure 3 (beta) reports with security labels | `npm test && npm run report` |
+| [Playwright + Allure 2](./integrations/playwright-allure2/) | Allure 2 (stable) reports - recommended | `npm test && npm run report` |
+| [Cypress + Mochawesome](./integrations/cypress-mochawesome/) | Cypress E2E with Mochawesome reports | `npm test && npm run report` |
+| [Puppeteer + Jest](./integrations/puppeteer-jest/) | Puppeteer with Jest HTML reporter | `npm test` |
+| [WebDriverIO + Allure 3](./integrations/webdriverio-allure/) | WebDriverIO 9 with Allure 3 (beta) | `npm test && npm run report` |
+| [WebDriverIO + Allure 2](./integrations/webdriverio-allure2/) | WebDriverIO 8 with Allure 2 (stable) | `npm test && npm run report` |
+
+> **Note:** Allure examples require Java 8+ installed to generate reports. The Allure 2 examples are recommended for production use.
+
+Each example includes:
+- Complete `package.json` with all dependencies
+- Working test files
+- Reporter configuration
+- README with detailed instructions
+- Cleanup script (`npm run clean`)
+
+## Running an Example
+
 ```bash
-cd playwright
-npx playwright test quickstart.spec.ts --reporter=list
+cd integrations/playwright-html  # or any example
+npm install
+npm test
+npm run report  # Opens the report (where applicable)
 ```
 
-## Puppeteer Examples
+## What's Demonstrated
 
-| Example | Description |
-|---------|-------------|
-| [quickstart.ts](./puppeteer/quickstart.ts) | Quick start example with console output |
-| [basic-audit.ts](./puppeteer/basic-audit.ts) | Simple security audit with default settings |
-| [custom-thresholds.ts](./puppeteer/custom-thresholds.ts) | Configure severity thresholds to allow some violations |
-| [category-filtering.ts](./puppeteer/category-filtering.ts) | Include/exclude specific rule categories |
-| [html-report.ts](./puppeteer/html-report.ts) | Generate and save HTML reports |
-| [jest-integration.test.ts](./puppeteer/jest-integration.test.ts) | Jest test suite integration |
-| [env-config.ts](./puppeteer/env-config.ts) | Load license key from .env file |
-| [advanced-config.ts](./puppeteer/advanced-config.ts) | Framework detection, custom rules, version info |
+Each integration shows:
 
-**Run Puppeteer examples:**
-```bash
-npx ts-node puppeteer/quickstart.ts
-```
-
-**Run Jest tests:**
-```bash
-npx jest puppeteer/jest-integration.test.ts
-```
-
-## Selenium WebDriver Examples
-
-| Example | Description |
-|---------|-------------|
-| [quickstart.ts](./webdriver/quickstart.ts) | Quick start example with console output |
-| [basic-audit.ts](./webdriver/basic-audit.ts) | Simple security audit with default settings |
-| [custom-thresholds.ts](./webdriver/custom-thresholds.ts) | Configure severity thresholds to allow some violations |
-| [category-filtering.ts](./webdriver/category-filtering.ts) | Include/exclude specific rule categories |
-| [html-report.ts](./webdriver/html-report.ts) | Generate and save HTML reports |
-| [env-config.ts](./webdriver/env-config.ts) | Load license key from .env file |
-| [advanced-config.ts](./webdriver/advanced-config.ts) | Framework detection, custom rules, version info |
-
-**Run WebDriver examples:**
-```bash
-npx ts-node webdriver/quickstart.ts
-```
-
-> **Note:** WebDriver requires ChromeDriver (or another browser driver) to be installed and available in PATH. See [selenium-webdriver documentation](https://www.selenium.dev/documentation/webdriver/getting_started/) for setup instructions.
-
-> **Note:** WebDriver cannot access HTTP response headers, so the `headers`, `csp`, and `cors` categories will not detect issues when using WebDriver.
-
-## Getting Started
-
-### Playwright
-
-1. Install QAstell:
-   ```bash
-   npm install qastell
-   ```
-
-2. Copy any example from `playwright/` to your `tests/` directory
-
-3. Run with Playwright:
-   ```bash
-   npx playwright test
-   ```
-
-### Puppeteer
-
-1. Install QAstell and Puppeteer:
-   ```bash
-   npm install qastell puppeteer
-   ```
-
-2. Copy any example from `puppeteer/` to your project
-
-3. Run with ts-node or compile and run:
-   ```bash
-   npx ts-node your-script.ts
-   ```
-
-### Selenium WebDriver
-
-1. Install QAstell and selenium-webdriver:
-   ```bash
-   npm install qastell selenium-webdriver
-   ```
-
-2. Ensure you have a browser driver installed (e.g., ChromeDriver for Chrome)
-
-3. Copy any example from `webdriver/` to your project
-
-4. Run with ts-node or compile and run:
-   ```bash
-   npx ts-node your-script.ts
-   ```
+1. **Real Security Testing** - Testing [The Internet](https://the-internet.herokuapp.com) demo site
+2. **Framework Integration** - How QAstell works with each framework's API
+3. **Report Connectors** - Attaching security findings to test reports
+4. **Multiple Pages** - Auditing different pages (login, forms, inputs, etc.)
+5. **Filtering** - Using category/rule filters to focus on specific areas
+6. **Security Gates** - Failing tests when security issues are found
 
 ## License Configuration
 
-QAstell works out of the box with the Free tier (no license required). For Enterprise or Corporate tiers, configure your license key using one of these methods:
+QAstell works out of the box with the Free tier (no license required). For Enterprise or Corporate tiers, configure your license key:
 
-### Option 1: Environment Variable (Recommended)
+### Environment Variable (Recommended)
 
-**Linux/macOS:**
 ```bash
 export QASTELL_LICENSE="your-license-key"
-npx playwright test  # or npx ts-node your-script.ts
+npm test
 ```
 
-**Windows (PowerShell):**
-```powershell
-$env:QASTELL_LICENSE="your-license-key"
-npx playwright test
-```
+### .env File
 
-**Windows (Command Prompt):**
-```cmd
-set QASTELL_LICENSE=your-license-key
-npx playwright test
-```
+Copy [`.env.example`](./.env.example) to `.env`:
 
-**Inline (any platform):**
-```bash
-QASTELL_LICENSE="your-license-key" npx playwright test
-```
-
-### Option 2: .env File
-
-Copy the provided [`.env.example`](./.env.example) to `.env` and replace the placeholder:
 ```bash
 cp .env.example .env
-# Edit .env and replace 'your-license-key-here' with your actual key
-```
-
-Then load it in your config:
-
-**Playwright (playwright.config.ts):**
-```typescript
-import 'dotenv/config';
-```
-
-**Puppeteer:**
-```typescript
-import 'dotenv/config';
-// or
-import { config } from 'dotenv';
-config();
-```
-
-### Option 3: Programmatic Initialization
-
-```typescript
-import { initLicense } from 'qastell';
-
-// In playwright.config.ts, global setup, or script entry point
-initLicense(process.env.QASTELL_LICENSE);
+# Edit .env with your license key
 ```
 
 ### CI/CD Integration
-
-Most CI/CD platforms support secrets or environment variables:
 
 - **GitHub Actions:** Add `QASTELL_LICENSE` to repository secrets
 - **GitLab CI:** Add to CI/CD variables (masked)

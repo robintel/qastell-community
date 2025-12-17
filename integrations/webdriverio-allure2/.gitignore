@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Allure output
+allure-results/
+allure-report/
+
+# QAstell reports
+qastell-report/
+
+# Build artifacts
+dist/
+*.log

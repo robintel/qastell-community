@@ -1,0 +1,24 @@
+{
+  "name": "qastell-cypress-mochawesome-example",
+  "version": "1.0.0",
+  "description": "Example: QAstell with Cypress and Mochawesome reporting",
+  "scripts": {
+    "test": "cypress run",
+    "test:headed": "cypress run --headed",
+    "report": "npx mochawesome-merge cypress/results/*.json -o cypress/results/merged.json && npx marge cypress/results/merged.json -o cypress/reports --inline",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "clean": "rm -rf cypress/results cypress/reports cypress/screenshots"
+  },
+  "dependencies": {
+    "cypress": "^15.0.0",
+    "cypress-mochawesome-reporter": "^3.8.0",
+    "qastell": "file:../../.."
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.3.0"
+  }
+}

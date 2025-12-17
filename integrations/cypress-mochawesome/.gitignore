@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Cypress output
+cypress/results/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# QAstell reports
+qastell-report/
+
+# Mochawesome reports
+mochawesome-report/
+
+# Build artifacts
+dist/
+*.log

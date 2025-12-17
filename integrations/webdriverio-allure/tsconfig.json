@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020", "DOM"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "types": ["node", "@wdio/mocha-framework"]
+  },
+  "include": ["tests/**/*.ts", "wdio.conf.ts", "webdriverio-adapter.ts"],
+  "exclude": ["node_modules", "dist", "allure-results", "allure-report"]
+}

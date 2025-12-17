@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+
+# Jest output
+test-report/
+coverage/
+
+# QAstell reports
+qastell-report/
+
+# Build artifacts
+dist/
+*.log

@@ -1,0 +1,26 @@
+{
+  "name": "qastell-puppeteer-jest-example",
+  "version": "1.0.0",
+  "description": "Example: QAstell with Puppeteer and Jest HTML reporting",
+  "scripts": {
+    "test": "jest --config jest.config.js",
+    "test:verbose": "jest --config jest.config.js --verbose",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "clean": "rm -rf test-report coverage qastell-report"
+  },
+  "dependencies": {
+    "puppeteer": "^21.0.0",
+    "qastell": "file:../../.."
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "jest": "^29.7.0",
+    "jest-html-reporter": "^3.10.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.0"
+  }
+}
