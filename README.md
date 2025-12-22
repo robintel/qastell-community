@@ -76,8 +76,10 @@ mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell seleniu
 ### Cypress (one command)
 
 ```bash
-mkdir -p qastell-demo/cypress/e2e && cd qastell-demo && npm init -y && npm i qastell cypress typescript && echo 'import{defineConfig}from"cypress";export default defineConfig({e2e:{supportFile:false}})' > cypress.config.ts && echo 'import{SecurityAuditor}from"qastell";it("security",()=>{cy.visit("https://example.com");cy.window().then(async(win)=>{const a=new SecurityAuditor(win),r=await a.audit();cy.log("Issues: "+r.summary.total+" | Critical: "+r.summary.bySeverity.critical+" | High: "+r.summary.bySeverity.high)})})' > cypress/e2e/security.cy.ts && npx cypress run --spec cypress/e2e/security.cy.ts
+mkdir -p qastell-demo/cypress/e2e && cd qastell-demo && npm init -y && npm i qastell cypress && echo 'const{defineConfig}=require("cypress");module.exports=defineConfig({e2e:{supportFile:false}})' > cypress.config.js && echo 'const{SecurityAuditor}=require("qastell");it("security",()=>{cy.visit("https://example.com");cy.window().then(async(win)=>{const a=new SecurityAuditor(win),r=await a.audit();cy.log("Issues: "+r.summary.total+" | Critical: "+r.summary.bySeverity.critical+" | High: "+r.summary.bySeverity.high)})})' > cypress/e2e/security.cy.js && npx cypress run --spec cypress/e2e/security.cy.js
 ```
+
+> **Note:** This one-liner uses JavaScript for simplicity. See the [cypress-mochawesome](./integrations/cypress-mochawesome/) example for a Cypress + TypeScript setup.
 
 > **Security tip:** Always review commands before running them. These one-liners install packages from npm and execute code - read them first to understand what they do.
 
