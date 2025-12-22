@@ -11,12 +11,15 @@ See the [integrations/](./integrations/) directory for complete, runnable exampl
 | [Playwright + HTML](./integrations/playwright-html/) | Default Playwright reporter with QAstell | `npm test && npm run report` |
 | [Playwright + Allure 3](./integrations/playwright-allure/) | Allure 3 (beta) reports with security labels | `npm test && npm run report` |
 | [Playwright + Allure 2](./integrations/playwright-allure2/) | Allure 2 (stable) reports - recommended | `npm test && npm run report` |
+| [Playwright + Cucumber](./integrations/playwright-cucumber/) | BDD with Cucumber built-in HTML reporter | `npm test` |
+| [Playwright + Cucumber Multi](./integrations/playwright-cucumber-multi/) | BDD with multiple-cucumber-html-reporter | `npm run test:report` |
 | [Cypress + Mochawesome](./integrations/cypress-mochawesome/) | Cypress E2E with Mochawesome reports | `npm test && npm run report` |
 | [Puppeteer + Jest](./integrations/puppeteer-jest/) | Puppeteer with Jest HTML reporter | `npm test` |
 | [WebDriverIO + Allure 3](./integrations/webdriverio-allure/) | WebDriverIO 9 with Allure 3 (beta) | `npm test && npm run report` |
 | [WebDriverIO + Allure 2](./integrations/webdriverio-allure2/) | WebDriverIO 8 with Allure 2 (stable) | `npm test && npm run report` |
 
 > **Note:** Allure examples require Java 8+ installed to generate reports. The Allure 2 examples are recommended for production use.
+> **Note:** Cucumber examples show BDD-style security tests. Use `playwright-cucumber-multi` for better Scenario Outline visualization.
 
 Each example includes:
 - Complete `package.json` with all dependencies

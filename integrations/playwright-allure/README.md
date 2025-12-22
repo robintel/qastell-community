@@ -26,6 +26,43 @@ npm test
 npm run report
 ```
 
+## New Architecture (Recommended)
+
+QAstell v0.7+ introduces a new **formatters + adapters** architecture for maximum flexibility:
+
+```typescript
+import { SecurityAuditor, ReportConnector, adapters } from 'qastell';
+import * as allure from 'allure-js-commons';
+
+test('security audit', async ({ page }) => {
+  const auditor = new SecurityAuditor(page);
+  const results = await auditor.audit();
+
+  // Create adapter for Allure
+  const adapter = adapters.allure(allure);
+  const connector = new ReportConnector(adapter);
+
+  // Attach results
+  await connector.attach(results, {
+    inline: 'markdown',           // Show markdown summary inline
+    attachments: ['html'],        // Attach full HTML report
+  });
+
+  expect(results.passed()).toBe(true);
+});
+```
+
+### Benefits of the New Architecture
+
+- **Single `adapters.allure()` function** works with both `allure-js-commons` and `@wdio/allure-reporter`
+- **Formatters are tier-gated** - JSON/JUnit require Enterprise+, SARIF requires Corporate
+- **More output formats** - HTML, Markdown, JSON, JUnit XML, SARIF
+- **Customizable** - Create your own adapter for any reporter
+
+## Legacy Approach (Still Supported)
+
+The examples in this project use the legacy `Allure3Connector` which still works:
+
 ## Available Scripts
 
 | Script | Description |
@@ -68,7 +105,7 @@ This removes:
 
 1. Playwright runs tests against the target site
 2. QAstell audits each page for security vulnerabilities
-3. `AllureConnector` attaches results to the Allure report:
+3. `Allure3Connector` attaches results to the Allure report:
    - Summary with severity breakdown
    - Full HTML report as attachment
    - Labels for filtering (epic, feature, severity)
@@ -92,10 +129,16 @@ reporter: [
 ```
 
 ### QAstell Allure Connector
-```typescript
-import { AllureConnector } from 'qastell/connectors';
 
-const connector = new AllureConnector();
+> **Connector Naming:** QAstell provides `Allure3Connector` and `Allure2Connector`. These names refer to the **API style**, not the package version:
+> - `Allure3Connector` - For `allure-js-commons` style API (`description()`, `attachment()`) - used by **all** `allure-playwright` versions
+> - `Allure2Connector` - For `@wdio/allure-reporter` style API (`addDescription()`, `addAttachment()`) - used by WebDriverIO
+
+```typescript
+import { Allure3Connector } from 'qastell/connectors';
+import * as allure from 'allure-js-commons';
+
+const connector = new Allure3Connector();
 await connector.attachSummary(results, allure, {
   attachFullReport: true,  // Include downloadable HTML
 });

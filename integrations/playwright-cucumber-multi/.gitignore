@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Cucumber output
+reports/
+
+# Playwright artifacts
+playwright-report/
+
+# QAstell reports
+qastell-report/
+
+# Build artifacts
+dist/
+*.log

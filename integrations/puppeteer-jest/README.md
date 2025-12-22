@@ -183,6 +183,23 @@ import { initLicense } from 'qastell';
 initLicense(process.env.QASTELL_LICENSE);
 ```
 
+## Architecture
+
+This example uses QAstell's direct API without report connectors. For Puppeteer, results are saved to files using the built-in `toHTML()` and `toSummaryHTML()` methods.
+
+For integration with reporters (Allure, Cucumber, etc.), see the **formatters + adapters** pattern in [ARCHITECTURE.md](../../../ARCHITECTURE.md).
+
+```typescript
+// Direct API (used in this example)
+const html = results.toHTML();
+fs.writeFileSync('report.html', html);
+
+// Or with file adapter (alternative)
+import { ReportConnector, adapters } from 'qastell';
+const connector = new ReportConnector(adapters.file('./reports'));
+await connector.attach(results, { attachments: ['html'] });
+```
+
 ## Documentation
 
 - [Puppeteer Guide](https://qastell.eu/docs-puppeteer.html)

@@ -17,6 +17,43 @@ npm test
 npm run report
 ```
 
+## New Architecture (Recommended)
+
+QAstell v0.7+ introduces a new **formatters + adapters** architecture for maximum flexibility:
+
+```typescript
+import { SecurityAuditor, ReportConnector, adapters } from 'qastell';
+import { allure } from 'allure-playwright';
+
+test('security audit', async ({ page }) => {
+  const auditor = new SecurityAuditor(page);
+  const results = await auditor.audit();
+
+  // Create adapter for Allure (auto-detects API style)
+  const adapter = adapters.allure(allure);
+  const connector = new ReportConnector(adapter);
+
+  // Attach results
+  await connector.attach(results, {
+    inline: 'markdown',           // Show markdown summary inline
+    attachments: ['html'],        // Attach full HTML report
+  });
+
+  expect(results.passed()).toBe(true);
+});
+```
+
+### Benefits of the New Architecture
+
+- **Single `adapters.allure()` function** works with both `allure-js-commons` and `@wdio/allure-reporter`
+- **Formatters are tier-gated** - JSON/JUnit require Enterprise+, SARIF requires Corporate
+- **More output formats** - HTML, Markdown, JSON, JUnit XML, SARIF
+- **Customizable** - Create your own adapter for any reporter
+
+## Legacy Approach (Still Supported)
+
+The examples in this project use the legacy `Allure3Connector` which still works.
+
 ## Allure 2 vs Allure 3
 
 | Feature | Allure 2 (this example) | Allure 3 (beta) |
@@ -52,33 +89,34 @@ playwright-allure2/
 
 ## Key Code Patterns
 
-### Using Allure 2 API
+### Using QAstell Connector
 
-Allure 2 uses the `allure` object from `allure-playwright` (different from Allure 3):
+> **Connector Naming:** QAstell provides `Allure3Connector` and `Allure2Connector`. These names refer to the **API style**, not the package version:
+> - `Allure3Connector` - For `allure-js-commons` style API (`description()`, `attachment()`) - used by **all** `allure-playwright` versions (both v2 and v3)
+> - `Allure2Connector` - For `@wdio/allure-reporter` style API (`addDescription()`, `addAttachment()`) - used by WebDriverIO
+>
+> Even though this example uses `allure-playwright@2.x`, it still uses `Allure3Connector` because the `allure` object from `allure-playwright` provides the same API as `allure-js-commons`.
 
 ```typescript
 import { test, expect } from '@playwright/test';
 import { SecurityAuditor } from 'qastell';
+import { Allure3Connector } from 'qastell/connectors';
 import { allure } from 'allure-playwright';
+
+const connector = new Allure3Connector();
 
 test('security audit', async ({ page }) => {
   // Add Allure metadata
   await allure.epic('Security');
   await allure.feature('Homepage Security');
-  await allure.story('Landing Page Audit');
 
   await page.goto('https://example.com');
 
   const auditor = new SecurityAuditor(page);
   const results = await auditor.audit();
 
-  // Set severity based on findings
-  if (results.summary.bySeverity.critical > 0) {
-    await allure.severity('critical');
-  }
-
-  // Attach HTML report
-  await allure.attachment('Security Report', results.toHTML(), 'text/html');
+  // Use Allure3Connector to attach summary with inline markdown
+  await connector.attachSummary(results, allure, { attachFullReport: true });
 
   // Add steps for visibility
   await allure.step(`Found ${results.summary.total} issues`, async () => {

@@ -73,7 +73,33 @@ This removes:
 reporter: 'html',
 ```
 
-### QAstell Playwright Connector
+### New Architecture (Recommended)
+
+QAstell v0.7+ introduces a new **formatters + adapters** architecture:
+
+```typescript
+import { SecurityAuditor, ReportConnector, adapters } from 'qastell';
+
+test('security audit', async ({ page }, testInfo) => {
+  const auditor = new SecurityAuditor(page);
+  const results = await auditor.audit();
+
+  // Create adapter for Playwright
+  const adapter = adapters.playwright(testInfo);
+  const connector = new ReportConnector(adapter);
+
+  // Attach results
+  await connector.attach(results, {
+    inline: 'htmlSummary',        // Show HTML summary inline
+    attachments: ['html'],         // Attach full HTML report
+  });
+
+  expect(results.passed()).toBe(true);
+});
+```
+
+### Legacy Approach (Still Supported)
+
 ```typescript
 import { PlaywrightConnector } from 'qastell/connectors';
 
@@ -151,6 +177,22 @@ Or in code:
 import { initLicense } from 'qastell';
 initLicense(process.env.QASTELL_LICENSE);
 ```
+
+## Architecture
+
+This example uses the **formatters + adapters** pattern:
+
+```
+AuditResults → ReportConnector → PlaywrightAdapter → testInfo.attach()
+                     ↓
+              formatters.html() / formatters.htmlSummary()
+```
+
+- **Formatters** transform audit results into output formats (HTML, markdown, JSON, etc.)
+- **Adapters** interface with specific reporters (Playwright testInfo, Allure, Cucumber)
+- **ReportConnector** orchestrates formatters and adapters
+
+See [ARCHITECTURE.md](../../../ARCHITECTURE.md) for detailed documentation.
 
 ## Documentation
 

@@ -17,9 +17,9 @@
 import { test, expect, Page } from '@playwright/test';
 import * as allure from 'allure-js-commons';
 import { SecurityAuditor } from 'qastell';
-import { AllureConnector } from 'qastell/connectors';
+import { Allure3Connector } from 'qastell/connectors';
 
-const connector = new AllureConnector();
+const connector = new Allure3Connector();
 const BASE_URL = 'https://the-internet.herokuapp.com';
 
 // Helper to wait for page to be ready
@@ -316,6 +316,74 @@ test.describe('Report Size Comparison @security', () => {
 
     // Attach summary (full report is saved to disk automatically)
     await connector.attachSummary(results, allure);
+  });
+});
+
+/**
+ * Demonstrate attachFullReport option
+ *
+ * When you don't have filesystem access (e.g., CI/CD environments),
+ * use attachFullReport: true to embed the full HTML report as a
+ * downloadable attachment in the Allure report.
+ */
+test.describe('Full Report Attachment @security', () => {
+  test.setTimeout(60000);
+
+  test('should attach full HTML report as downloadable file', async ({ page }) => {
+    await allure.epic('Security');
+    await allure.feature('Report Attachment');
+    await allure.story('Full Report Download');
+
+    await page.goto(BASE_URL);
+    await page.waitForLoadState('networkidle');
+
+    const auditor = new SecurityAuditor(page);
+    const results = await auditor.audit();
+
+    // Use attachFullReport: true to embed the full HTML report
+    // This creates a downloadable attachment in the Allure report
+    // Useful when you don't have access to the filesystem (CI/CD)
+    await connector.attachSummary(results, allure, {
+      attachFullReport: true,
+      fullReportName: 'QAstell Full Security Report.html',
+    });
+
+    await allure.step('Full report attached as downloadable file', async () => {
+      await allure.step('Look for "QAstell Full Security Report.html" in attachments', async () => {});
+      await allure.step('Download and open in browser for full interactive report', async () => {});
+    });
+
+    console.log('Full HTML report attached to Allure report');
+    console.log('Check the Attachments section in Allure to download it');
+
+    // This test always passes - it demonstrates the attachment feature
+    expect(results.summary).toBeDefined();
+  });
+
+  test('should show inline summary without full report attachment', async ({ page }) => {
+    await allure.epic('Security');
+    await allure.feature('Report Attachment');
+    await allure.story('Inline Summary Only');
+
+    await page.goto(`${BASE_URL}/login`);
+    await page.waitForLoadState('networkidle');
+
+    const auditor = new SecurityAuditor(page);
+    const results = await auditor.audit();
+
+    // Default: no attachFullReport option
+    // Shows inline markdown summary with link to filesystem path
+    await connector.attachSummary(results, allure);
+
+    await allure.step('Inline summary displayed in Description', async () => {
+      await allure.step('Full report saved to qastell-report/ directory', async () => {});
+      await allure.step('Use attachFullReport: true if you need it as attachment', async () => {});
+    });
+
+    console.log('Inline summary shown in Allure report description');
+    console.log('Full report saved to disk at qastell-report/');
+
+    expect(results.summary).toBeDefined();
   });
 });
 

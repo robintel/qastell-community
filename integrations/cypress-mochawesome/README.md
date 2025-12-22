@@ -184,6 +184,23 @@ Due to Cypress's architecture, some features work differently:
 - **Response Headers**: Not accessible by default. Use `cy.intercept()` before navigation if you need header checking.
 - **Cookies**: Only non-httpOnly cookies are visible via the adapter. For full cookie info, use `cy.getCookies()` separately.
 
+## Architecture
+
+Cypress runs inside the browser, so QAstell uses a special Cypress adapter that accesses the DOM directly. Results are saved to files using the built-in `toHTML()` method.
+
+For integration with other reporters (Allure, Cucumber, etc.), see the **formatters + adapters** pattern in [ARCHITECTURE.md](../../../ARCHITECTURE.md).
+
+```typescript
+// Direct API (used in this example)
+const html = results.toHTML();
+cy.writeFile('cypress/reports/security-report.html', html);
+
+// Or with file adapter (alternative)
+import { ReportConnector, adapters } from 'qastell';
+const connector = new ReportConnector(adapters.file('./reports'));
+await connector.attach(results, { attachments: ['html'] });
+```
+
 ## Documentation
 
 - [Cypress Guide](https://qastell.eu/docs-cypress.html)

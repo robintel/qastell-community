@@ -12,47 +12,16 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import { SecurityAuditor, AuditResults, VERSION, getTierDisplayName } from 'qastell';
+import { SecurityAuditor } from 'qastell';
+import { Allure3Connector } from 'qastell/connectors';
 import { allure } from 'allure-playwright';
 
 const BASE_URL = 'https://the-internet.herokuapp.com';
-
-// Get QAstell info string from audit results
-function getQAstellInfo(results: AuditResults): string {
-  const tierName = getTierDisplayName(results.tier);
-  return `QAstell v${VERSION} (${tierName})`;
-}
+const connector = new Allure3Connector();
 
 // Helper to wait for page to be ready
 async function waitForPageReady(page: Page): Promise<void> {
   await page.waitForLoadState('networkidle', { timeout: 30000 });
-}
-
-// Attach security results to Allure report
-async function attachSecurityResults(results: AuditResults): Promise<void> {
-  const { summary } = results;
-
-  // Add severity label based on findings
-  if (summary.bySeverity.critical > 0) {
-    await allure.severity('critical');
-  } else if (summary.bySeverity.high > 0) {
-    await allure.severity('blocker');
-  } else if (summary.bySeverity.medium > 0) {
-    await allure.severity('normal');
-  } else {
-    await allure.severity('minor');
-  }
-
-  // Add QAstell label
-  await allure.label('qastell', getQAstellInfo(results));
-
-  // Attach HTML summary report
-  const summaryHtml = results.toSummaryHTML();
-  await allure.attachment('QAstell Security Summary', summaryHtml, 'text/html');
-
-  // Attach full HTML report
-  const fullHtml = results.toHTML();
-  await allure.attachment('QAstell Full Report', fullHtml, 'text/html');
 }
 
 test.describe('Security Audit Demo @security', () => {
@@ -69,7 +38,8 @@ test.describe('Security Audit Demo @security', () => {
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
 
-    await attachSecurityResults(results);
+    // Use Allure3Connector to attach summary with inline markdown
+    await connector.attachSummary(results, allure, { attachFullReport: true });
 
     await allure.step(`Found ${results.summary.total} security issues`, async () => {
       await allure.logStep(`Critical: ${results.summary.bySeverity.critical}`);
@@ -94,7 +64,7 @@ test.describe('Security Audit Demo @security', () => {
       include: ['forms', 'sensitive-data', 'headers'],
     });
 
-    await attachSecurityResults(results);
+    await connector.attachSummary(results, allure);
 
     const formIssues = results.violations.filter((v) => v.rule?.category === 'forms');
 
@@ -120,7 +90,7 @@ test.describe('Security Audit Demo @security', () => {
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
 
-    await attachSecurityResults(results);
+    await connector.attachSummary(results, allure);
 
     await allure.logStep(`Form Auth Page: ${results.summary.total} issues`);
 
@@ -140,7 +110,7 @@ test.describe('Security Audit Demo @security', () => {
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
 
-    await attachSecurityResults(results);
+    await connector.attachSummary(results, allure);
 
     await allure.logStep(`Dynamic Content Page: ${results.summary.total} issues`);
 
@@ -160,7 +130,7 @@ test.describe('Security Audit Demo @security', () => {
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
 
-    await attachSecurityResults(results);
+    await connector.attachSummary(results, allure);
 
     await allure.logStep(`Checkboxes Page: ${results.summary.total} issues`);
 
@@ -180,7 +150,7 @@ test.describe('Security Audit Demo @security', () => {
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
 
-    await attachSecurityResults(results);
+    await connector.attachSummary(results, allure);
 
     await allure.logStep(`Dropdown Page: ${results.summary.total} issues`);
 
@@ -200,7 +170,7 @@ test.describe('Security Audit Demo @security', () => {
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
 
-    await attachSecurityResults(results);
+    await connector.attachSummary(results, allure);
 
     await allure.logStep(`Inputs Page: ${results.summary.total} issues`);
 
@@ -224,7 +194,7 @@ test.describe('Security Severity Analysis @security', () => {
     const auditor = new SecurityAuditor(page);
     const results = await auditor.audit();
 
-    await attachSecurityResults(results);
+    await connector.attachSummary(results, allure);
 
     await allure.step('Severity Distribution', async () => {
       const { bySeverity } = results.summary;
@@ -293,6 +263,48 @@ test.describe('Report Size Comparison @security', () => {
 
     expect(summaryHtml.length).toBeLessThan(fullHtml.length * 0.5);
 
-    await attachSecurityResults(results);
+    await connector.attachSummary(results, allure);
+  });
+});
+
+/**
+ * Demonstrate attachFullReport option
+ *
+ * When you don't have filesystem access (e.g., CI/CD environments),
+ * use attachFullReport: true to embed the full HTML report as a
+ * downloadable attachment in the Allure report.
+ */
+test.describe('Full Report Attachment @security', () => {
+  test.setTimeout(60000);
+
+  test('should attach full HTML report as downloadable file', async ({ page }) => {
+    await allure.epic('Security');
+    await allure.feature('Report Attachment');
+    await allure.story('Full Report Download');
+
+    await page.goto(BASE_URL);
+    await page.waitForLoadState('networkidle');
+
+    const auditor = new SecurityAuditor(page);
+    const results = await auditor.audit();
+
+    // Use attachFullReport: true to embed the full HTML report
+    // This creates a downloadable attachment in the Allure report
+    // Useful when you don't have access to the filesystem (CI/CD)
+    await connector.attachSummary(results, allure, {
+      attachFullReport: true,
+      fullReportName: 'QAstell Full Security Report.html',
+    });
+
+    await allure.step('Full report attached as downloadable file', async () => {
+      await allure.logStep('Look for "QAstell Full Security Report.html" in attachments');
+      await allure.logStep('Download and open in browser for full interactive report');
+    });
+
+    console.log('Full HTML report attached to Allure report');
+    console.log('Check the Attachments section in Allure to download it');
+
+    // This test always passes - it demonstrates the attachment feature
+    expect(results.summary).toBeDefined();
   });
 });

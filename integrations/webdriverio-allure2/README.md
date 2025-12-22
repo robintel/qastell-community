@@ -17,6 +17,46 @@ npm test
 npm run report
 ```
 
+## New Architecture (Recommended)
+
+QAstell v0.7+ introduces a new **formatters + adapters** architecture for maximum flexibility:
+
+```typescript
+import { SecurityAuditor, createWebDriverIOAdapter, ReportConnector, adapters } from 'qastell';
+import AllureReporter from '@wdio/allure-reporter';
+
+it('should audit the page for security issues', async () => {
+  const browserAdapter = createWebDriverIOAdapter(browser);
+  await browserAdapter.init();
+
+  const auditor = new SecurityAuditor(browserAdapter as any);
+  const results = await auditor.audit();
+
+  // Create adapter for Allure (auto-detects API style)
+  const adapter = adapters.allure(AllureReporter);
+  const connector = new ReportConnector(adapter);
+
+  // Attach results
+  await connector.attach(results, {
+    inline: 'markdown',           // Show markdown summary inline
+    attachments: ['html'],        // Attach full HTML report
+  });
+
+  expect(results.passed()).toBe(true);
+});
+```
+
+### Benefits of the New Architecture
+
+- **Single `adapters.allure()` function** works with both `allure-js-commons` and `@wdio/allure-reporter`
+- **Formatters are tier-gated** - JSON/JUnit require Enterprise+, SARIF requires Corporate
+- **More output formats** - HTML, Markdown, JSON, JUnit XML, SARIF
+- **Customizable** - Create your own adapter for any reporter
+
+## Legacy Approach (Still Supported)
+
+The examples in this project use the legacy `Allure2Connector` which still works.
+
 ## Allure 2 vs Allure 3
 
 | Feature | Allure 2 (this example) | Allure 3 (beta) |
@@ -67,6 +107,25 @@ async function createAuditor(): Promise<SecurityAuditor> {
 ```
 
 ### Attaching Results to Allure
+
+> **Connector Naming:** QAstell provides `Allure2Connector` and `Allure3Connector`. These names refer to the **API style**, not the package version:
+> - `Allure2Connector` - For `@wdio/allure-reporter` style API (`addDescription()`, `addAttachment()`) - used by **all** WebDriverIO versions (both v8 and v9)
+> - `Allure3Connector` - For `allure-js-commons` style API (`description()`, `attachment()`) - used by Playwright with `allure-playwright`
+
+```typescript
+import { Allure2Connector } from 'qastell/connectors';
+import AllureReporter from '@wdio/allure-reporter';
+
+const connector = new Allure2Connector();
+
+// In your test:
+const results = await auditor.audit();
+
+// Use Allure2Connector to attach summary with inline markdown
+await connector.attachSummary(results, AllureReporter);
+```
+
+#### Manual attachment (alternative)
 
 ```typescript
 import AllureReporter from '@wdio/allure-reporter';
