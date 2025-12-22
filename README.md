@@ -70,7 +70,7 @@ mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell puppete
 ### Selenium WebDriver (one command)
 
 ```bash
-mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell selenium-webdriver && node -e 'const{Builder}=require("selenium-webdriver"),{SecurityAuditor}=require("qastell");(async()=>{const d=await new Builder().forBrowser("chrome").build();await d.get("https://example.com");const a=new SecurityAuditor(d),r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);await d.quit()})();'
+mkdir -p qastell-demo && cd qastell-demo && npm init -y && npm i qastell selenium-webdriver && node -e 'const{Builder}=require("selenium-webdriver"),chrome=require("selenium-webdriver/chrome"),{SecurityAuditor}=require("qastell");(async()=>{const o=new chrome.Options();o.addArguments("--headless","--no-sandbox");const d=await new Builder().forBrowser("chrome").setChromeOptions(o).build();await d.get("https://example.com");const a=new SecurityAuditor(d),r=await a.audit();console.log("Issues:",r.summary.total,"| Critical:",r.summary.bySeverity.critical,"| High:",r.summary.bySeverity.high);await d.quit()})();'
 ```
 
 ### Cypress (one command)
