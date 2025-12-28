@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+message: "If you use QAstell in your research or publication, please cite it as below."
+type: software
+title: "QAstell"
+abstract: "Security auditing library for web application testing frameworks. Integrates with Playwright, Puppeteer, Selenium WebDriver, WebdriverIO, and Cypress."
+authors:
+  - family-names: "Molnar"
+    given-names: "Robin"
+license: "LicenseRef-Proprietary"
+url: "https://qastell.eu"
+repository-code: "https://github.com/robintel/qastell-community"
+keywords:
+  - security
+  - testing
+  - web-security
+  - playwright
+  - puppeteer
+  - selenium
+  - webdriver
+  - cypress
+  - accessibility
+  - audit
