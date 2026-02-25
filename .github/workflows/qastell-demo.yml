@@ -147,7 +147,7 @@ jobs:
             fi
           done
 
-      - name: Merge SARIF files into one
+      - name: Merge SARIF files into a single run
         if: always()
         working-directory: qastell-demo
         run: |
@@ -155,15 +155,39 @@ jobs:
           const fs = require('fs');
           const path = require('path');
           const dir = path.join(__dirname, 'reports');
-          const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif'));
+          const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif') && f !== 'combined.sarif');
           if (files.length === 0) { console.log('No SARIF files found'); process.exit(0); }
-          const combined = { $schema: 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json', version: '2.1.0', runs: [] };
-          for (const file of files) {
-            const sarif = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
-            combined.runs.push(...sarif.runs);
+
+          // Use the first file as the base (tool info, schema, etc.)
+          const base = JSON.parse(fs.readFileSync(path.join(dir, files[0]), 'utf8'));
+          const run = base.runs[0];
+          const rulesMap = new Map();
+          run.tool.driver.rules.forEach(r => rulesMap.set(r.id, r));
+          const allResults = [...run.results];
+          const allArtifacts = [...(run.artifacts || [])];
+
+          // Merge remaining files into the single run
+          for (let i = 1; i < files.length; i++) {
+            const sarif = JSON.parse(fs.readFileSync(path.join(dir, files[i]), 'utf8'));
+            const r = sarif.runs[0];
+            r.tool.driver.rules.forEach(rule => rulesMap.set(rule.id, rule));
+            allResults.push(...r.results);
+            if (r.artifacts) allArtifacts.push(...r.artifacts);
           }
-          fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(combined, null, 2));
-          console.log(`Merged ${files.length} SARIF files into combined.sarif (${combined.runs.length} runs)`);
+
+          // Rebuild with deduped rules and combined results
+          run.tool.driver.rules = [...rulesMap.values()];
+          run.results = allResults;
+          run.artifacts = allArtifacts;
+
+          // Fix ruleIndex references to match the new rules array
+          const ruleIds = run.tool.driver.rules.map(r => r.id);
+          for (const result of run.results) {
+            result.ruleIndex = ruleIds.indexOf(result.ruleId);
+          }
+
+          fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(base, null, 2));
+          console.log(`Merged ${files.length} SARIF files: ${rulesMap.size} rules, ${allResults.length} results`);
           MERGE
 
       - name: Upload SARIF to GitHub Security tab
@@ -274,7 +298,7 @@ jobs:
             fi
           done
 
-      - name: Merge SARIF files into one
+      - name: Merge SARIF files into a single run
         if: always()
         working-directory: qastell-demo
         run: |
@@ -282,15 +306,35 @@ jobs:
           const fs = require('fs');
           const path = require('path');
           const dir = path.join(__dirname, 'reports');
-          const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif'));
+          const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif') && f !== 'combined.sarif');
           if (files.length === 0) { console.log('No SARIF files found'); process.exit(0); }
-          const combined = { $schema: 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json', version: '2.1.0', runs: [] };
-          for (const file of files) {
-            const sarif = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
-            combined.runs.push(...sarif.runs);
+
+          const base = JSON.parse(fs.readFileSync(path.join(dir, files[0]), 'utf8'));
+          const run = base.runs[0];
+          const rulesMap = new Map();
+          run.tool.driver.rules.forEach(r => rulesMap.set(r.id, r));
+          const allResults = [...run.results];
+          const allArtifacts = [...(run.artifacts || [])];
+
+          for (let i = 1; i < files.length; i++) {
+            const sarif = JSON.parse(fs.readFileSync(path.join(dir, files[i]), 'utf8'));
+            const r = sarif.runs[0];
+            r.tool.driver.rules.forEach(rule => rulesMap.set(rule.id, rule));
+            allResults.push(...r.results);
+            if (r.artifacts) allArtifacts.push(...r.artifacts);
           }
-          fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(combined, null, 2));
-          console.log(`Merged ${files.length} SARIF files into combined.sarif (${combined.runs.length} runs)`);
+
+          run.tool.driver.rules = [...rulesMap.values()];
+          run.results = allResults;
+          run.artifacts = allArtifacts;
+
+          const ruleIds = run.tool.driver.rules.map(r => r.id);
+          for (const result of run.results) {
+            result.ruleIndex = ruleIds.indexOf(result.ruleId);
+          }
+
+          fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(base, null, 2));
+          console.log(`Merged ${files.length} SARIF files: ${rulesMap.size} rules, ${allResults.length} results`);
           MERGE
 
       - name: Upload SARIF to GitHub Security tab
