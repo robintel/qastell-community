@@ -18,6 +18,8 @@ on:
 permissions:
   security-events: write
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   # ─── Playwright ──────────────────────────────────────────────
@@ -244,6 +246,10 @@ jobs:
                   region: { startLine: elementLine },
                 };
               }
+
+              // Remove old fingerprints — let GitHub calculate fresh ones
+              // from the composite file content
+              delete result.partialFingerprints;
             }
           }
 
@@ -474,6 +480,10 @@ jobs:
                   region: { startLine: elementLine },
                 };
               }
+
+              // Remove old fingerprints — let GitHub calculate fresh ones
+              // from the composite file content
+              delete result.partialFingerprints;
             }
           }
 
@@ -517,3 +527,141 @@ jobs:
         with:
           name: qastell-puppeteer-reports
           path: qastell-demo/reports/
+
+  # ─── Deploy Reports to GitHub Pages ────────────────────────
+  deploy-reports:
+    name: Deploy Reports to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [playwright, puppeteer]
+    if: always() && github.actor == 'robintel'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Download Playwright reports
+        uses: actions/download-artifact@v4
+        with:
+          name: qastell-playwright-reports
+          path: site/playwright
+        continue-on-error: true
+
+      - name: Download Puppeteer reports
+        uses: actions/download-artifact@v4
+        with:
+          name: qastell-puppeteer-reports
+          path: site/puppeteer
+        continue-on-error: true
+
+      - name: Generate index page
+        run: |
+          node << 'INDEX'
+          const fs = require('fs');
+          const path = require('path');
+
+          const siteDir = path.join(process.cwd(), 'site');
+          const timestamp = new Date().toISOString().replace('T', ' ').split('.')[0] + ' UTC';
+
+          // Collect reports per framework
+          function collectReports(framework) {
+            const dir = path.join(siteDir, framework);
+            if (!fs.existsSync(dir)) return [];
+            return fs.readdirSync(dir)
+              .filter(f => f.endsWith('.html') && !f.endsWith('-summary.html') && f !== 'combined.sarif')
+              .sort()
+              .map(f => {
+                const name = f.replace('.html', '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                return { file: f, name };
+              });
+          }
+
+          const playwrightReports = collectReports('playwright');
+          const puppeteerReports = collectReports('puppeteer');
+
+          const html = `<!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>QAstell Security Audit Reports</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; min-height: 100vh; }
+              .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+              h1 { font-size: 1.8rem; margin-bottom: 0.3rem; }
+              h1 span { color: #58a6ff; }
+              .subtitle { color: #8b949e; margin-bottom: 2rem; font-size: 0.95rem; }
+              .badge { display: inline-block; background: #1f6feb; color: #fff; padding: 0.15rem 0.5rem; border-radius: 12px; font-size: 0.75rem; vertical-align: middle; margin-left: 0.5rem; }
+              .framework { background: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 1.5rem; overflow: hidden; }
+              .framework-header { padding: 1rem 1.25rem; border-bottom: 1px solid #30363d; display: flex; align-items: center; gap: 0.5rem; }
+              .framework-header h2 { font-size: 1.2rem; font-weight: 600; }
+              .report-list { list-style: none; }
+              .report-list li { border-bottom: 1px solid #21262d; }
+              .report-list li:last-child { border-bottom: none; }
+              .report-list a { display: block; padding: 0.75rem 1.25rem; color: #58a6ff; text-decoration: none; transition: background 0.15s; }
+              .report-list a:hover { background: #1c2128; }
+              .report-list .filename { color: #8b949e; font-size: 0.8rem; margin-left: 0.5rem; }
+              .empty { padding: 1rem 1.25rem; color: #8b949e; font-style: italic; }
+              .footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #30363d; color: #8b949e; font-size: 0.85rem; text-align: center; }
+              .footer a { color: #58a6ff; text-decoration: none; }
+              .meta { display: flex; gap: 2rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #8b949e; }
+              .meta span { display: flex; align-items: center; gap: 0.3rem; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>&#128737; <span>QAstell</span> Security Audit Reports</h1>
+              <p class="subtitle">Automated security scans of <a href="https://the-internet.herokuapp.com" style="color:#58a6ff">the-internet.herokuapp.com</a></p>
+              <div class="meta">
+                <span>&#128197; ${timestamp}</span>
+                <span>&#128279; <a href="https://github.com/robintel/qastell-community/actions" style="color:#58a6ff">View workflow runs</a></span>
+              </div>
+
+              <div class="framework">
+                <div class="framework-header">
+                  <h2>Playwright</h2>
+                  <span class="badge">${playwrightReports.length} pages</span>
+                </div>
+                ${playwrightReports.length > 0
+                  ? '<ul class="report-list">' + playwrightReports.map(r =>
+                      '<li><a href="playwright/' + r.file + '">' + r.name + '<span class="filename">' + r.file + '</span></a></li>'
+                    ).join('') + '</ul>'
+                  : '<p class="empty">No reports available (job may have been skipped)</p>'
+                }
+              </div>
+
+              <div class="framework">
+                <div class="framework-header">
+                  <h2>Puppeteer</h2>
+                  <span class="badge">${puppeteerReports.length} pages</span>
+                </div>
+                ${puppeteerReports.length > 0
+                  ? '<ul class="report-list">' + puppeteerReports.map(r =>
+                      '<li><a href="puppeteer/' + r.file + '">' + r.name + '<span class="filename">' + r.file + '</span></a></li>'
+                    ).join('') + '</ul>'
+                  : '<p class="empty">No reports available (job may have been skipped)</p>'
+                }
+              </div>
+
+              <div class="footer">
+                <p>Generated by <a href="https://qastell.eu">QAstell</a> &mdash; Security Auditing for SDETs</p>
+                <p style="margin-top:0.3rem"><a href="https://github.com/robintel/qastell-community">Source</a> &middot; <a href="https://qastell.eu/docs.html">Docs</a></p>
+              </div>
+            </div>
+          </body>
+          </html>`;
+
+          fs.writeFileSync(path.join(siteDir, 'index.html'), html);
+          console.log('Index page generated');
+          console.log('Playwright reports:', playwrightReports.length);
+          console.log('Puppeteer reports:', puppeteerReports.length);
+          INDEX
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -263,8 +263,10 @@ Each job:
 3. **Generates reports** in all Corporate-tier formats (HTML, JSON, SARIF, JUnit)
 4. **Fails the build** when violations are found (`assertNoViolations()`)
 5. **Uploads a Markdown summary** to the GitHub Actions job summary
-6. **Uploads SARIF** to [GitHub Code Scanning](https://github.com/robintel/qastell-community/security/code-scanning) so findings appear in the Security tab
+6. **Uploads SARIF** to [GitHub Code Scanning](https://github.com/robintel/qastell-community/security/code-scanning) so findings appear in the Security tab (requires login)
 7. **Uploads all reports** as downloadable artifacts
+
+After both jobs complete, a third job **deploys all HTML reports to [GitHub Pages](https://robintel.github.io/qastell-community/)** &mdash; providing a publicly accessible, always up-to-date view of QAstell's findings.
 
 ### How to set this up in your own project
 
@@ -355,11 +357,13 @@ To see QAstell findings in your repository's **Security > Code scanning alerts**
 
 ### Where to find results
 
-| What | Where |
-|------|-------|
-| Markdown summary | Actions run page (job summary section) |
-| Code scanning alerts | [Security > Code scanning](https://github.com/robintel/qastell-community/security/code-scanning) |
-| HTML/JSON/SARIF/JUnit reports | Actions run page > Artifacts (download as zip) |
+| What | Public? | Where |
+|------|---------|-------|
+| Interactive HTML reports | Yes | [GitHub Pages](https://robintel.github.io/qastell-community/) |
+| Markdown summary | Yes | Actions run page (job summary section) |
+| Workflow logs | Yes | [Actions tab](https://github.com/robintel/qastell-community/actions/workflows/qastell-demo.yml) |
+| HTML/JSON/SARIF/JUnit reports | Yes | Actions run page > Artifacts (download as zip) |
+| Code scanning alerts | Login required | [Security > Code scanning](https://github.com/robintel/qastell-community/security/code-scanning) |
 
 ---
 
