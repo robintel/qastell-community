@@ -274,6 +274,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add security-audit-results-playwright.html
             git diff --cached --quiet || git commit -m "Update security audit findings (Playwright)"
+            git pull --rebase
             git push
           fi
 
@@ -498,6 +499,7 @@ jobs:
             git config user.email "github-actions[bot]@users.noreply.github.com"
             git add security-audit-results-puppeteer.html
             git diff --cached --quiet || git commit -m "Update security audit findings (Puppeteer)"
+            git pull --rebase
             git push
           fi
 
