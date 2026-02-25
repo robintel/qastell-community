@@ -17,6 +17,7 @@ on:
 
 permissions:
   security-events: write
+  contents: read
 
 jobs:
   # ─── Playwright ──────────────────────────────────────────────
@@ -26,6 +27,9 @@ jobs:
     if: github.actor == 'robintel'
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -147,14 +151,14 @@ jobs:
             fi
           done
 
-      - name: Merge SARIF files into a single run
+      - name: Merge SARIF files and rewrite URIs for GitHub
         if: always()
         working-directory: qastell-demo
         run: |
           node << 'MERGE'
           const fs = require('fs');
           const path = require('path');
-          const dir = path.join(__dirname, 'reports');
+          const dir = path.join(process.cwd(), 'reports');
           const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif') && f !== 'combined.sarif');
           if (files.length === 0) { console.log('No SARIF files found'); process.exit(0); }
 
@@ -164,7 +168,6 @@ jobs:
           const rulesMap = new Map();
           run.tool.driver.rules.forEach(r => rulesMap.set(r.id, r));
           const allResults = [...run.results];
-          const allArtifacts = [...(run.artifacts || [])];
 
           // Merge remaining files into the single run
           for (let i = 1; i < files.length; i++) {
@@ -172,19 +175,51 @@ jobs:
             const r = sarif.runs[0];
             r.tool.driver.rules.forEach(rule => rulesMap.set(rule.id, rule));
             allResults.push(...r.results);
-            if (r.artifacts) allArtifacts.push(...r.artifacts);
           }
 
           // Rebuild with deduped rules and combined results
           run.tool.driver.rules = [...rulesMap.values()];
           run.results = allResults;
-          run.artifacts = allArtifacts;
 
           // Fix ruleIndex references to match the new rules array
           const ruleIds = run.tool.driver.rules.map(r => r.id);
           for (const result of run.results) {
             result.ruleIndex = ruleIds.indexOf(result.ruleId);
           }
+
+          // Rewrite artifact URIs from https:// to relative file paths.
+          // GitHub Code Scanning expects file:// scheme URIs, not https://.
+          // We map URLs to pseudo-paths so findings display correctly.
+          function rewriteUri(uri) {
+            try {
+              const u = new URL(uri);
+              return u.hostname + u.pathname;
+            } catch { return uri; }
+          }
+
+          // Rewrite artifact locations
+          run.artifacts = (run.artifacts || []).map(a => ({
+            location: { uri: rewriteUri(a.location.uri) }
+          }));
+
+          // Collect all unique rewritten URIs for artifacts
+          const artifactUris = new Set();
+
+          // Rewrite result locations
+          for (const result of run.results) {
+            if (result.locations) {
+              for (const loc of result.locations) {
+                if (loc.physicalLocation?.artifactLocation?.uri) {
+                  loc.physicalLocation.artifactLocation.uri =
+                    rewriteUri(loc.physicalLocation.artifactLocation.uri);
+                  artifactUris.add(loc.physicalLocation.artifactLocation.uri);
+                }
+              }
+            }
+          }
+
+          // Rebuild artifacts from all unique URIs
+          run.artifacts = [...artifactUris].map(uri => ({ location: { uri } }));
 
           fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(base, null, 2));
           console.log(`Merged ${files.length} SARIF files: ${rulesMap.size} rules, ${allResults.length} results`);
@@ -212,6 +247,9 @@ jobs:
     if: github.actor == 'robintel'
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -235,7 +273,7 @@ jobs:
           const fs = require('fs');
           const path = require('path');
 
-          const REPORTS_DIR = path.join(__dirname, 'reports');
+          const REPORTS_DIR = path.join(process.cwd(), 'reports');
           const BASE_URL = 'https://the-internet.herokuapp.com';
 
           const PAGES = [
@@ -298,14 +336,14 @@ jobs:
             fi
           done
 
-      - name: Merge SARIF files into a single run
+      - name: Merge SARIF files and rewrite URIs for GitHub
         if: always()
         working-directory: qastell-demo
         run: |
           node << 'MERGE'
           const fs = require('fs');
           const path = require('path');
-          const dir = path.join(__dirname, 'reports');
+          const dir = path.join(process.cwd(), 'reports');
           const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif') && f !== 'combined.sarif');
           if (files.length === 0) { console.log('No SARIF files found'); process.exit(0); }
 
@@ -314,24 +352,46 @@ jobs:
           const rulesMap = new Map();
           run.tool.driver.rules.forEach(r => rulesMap.set(r.id, r));
           const allResults = [...run.results];
-          const allArtifacts = [...(run.artifacts || [])];
 
           for (let i = 1; i < files.length; i++) {
             const sarif = JSON.parse(fs.readFileSync(path.join(dir, files[i]), 'utf8'));
             const r = sarif.runs[0];
             r.tool.driver.rules.forEach(rule => rulesMap.set(rule.id, rule));
             allResults.push(...r.results);
-            if (r.artifacts) allArtifacts.push(...r.artifacts);
           }
 
           run.tool.driver.rules = [...rulesMap.values()];
           run.results = allResults;
-          run.artifacts = allArtifacts;
 
           const ruleIds = run.tool.driver.rules.map(r => r.id);
           for (const result of run.results) {
             result.ruleIndex = ruleIds.indexOf(result.ruleId);
           }
+
+          function rewriteUri(uri) {
+            try {
+              const u = new URL(uri);
+              return u.hostname + u.pathname;
+            } catch { return uri; }
+          }
+
+          run.artifacts = (run.artifacts || []).map(a => ({
+            location: { uri: rewriteUri(a.location.uri) }
+          }));
+
+          const artifactUris = new Set();
+          for (const result of run.results) {
+            if (result.locations) {
+              for (const loc of result.locations) {
+                if (loc.physicalLocation?.artifactLocation?.uri) {
+                  loc.physicalLocation.artifactLocation.uri =
+                    rewriteUri(loc.physicalLocation.artifactLocation.uri);
+                  artifactUris.add(loc.physicalLocation.artifactLocation.uri);
+                }
+              }
+            }
+          }
+          run.artifacts = [...artifactUris].map(uri => ({ location: { uri } }));
 
           fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(base, null, 2));
           console.log(`Merged ${files.length} SARIF files: ${rulesMap.size} rules, ${allResults.length} results`);
