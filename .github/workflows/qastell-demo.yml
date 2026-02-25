@@ -15,6 +15,9 @@ name: QAstell Security Demo
 on:
   workflow_dispatch:
 
+permissions:
+  security-events: write
+
 jobs:
   # ─── Playwright ──────────────────────────────────────────────
   playwright:
@@ -28,23 +31,32 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Scaffold Playwright project
-        run: npx -y create-playwright@latest qastell-demo --quiet
+      - name: Scaffold project and install dependencies
+        run: |
+          mkdir -p qastell-demo/tests qastell-demo/reports
+          cd qastell-demo
+          npm init -y
+          npm i qastell @playwright/test
+          npx playwright install --with-deps chromium
 
-      - name: Install QAstell
+      - name: Create Playwright config
         working-directory: qastell-demo
-        run: npm i qastell
-
-      - name: Install Chromium
-        working-directory: qastell-demo
-        run: npx playwright install chromium
+        run: |
+          cat > playwright.config.ts << 'EOF'
+          import { defineConfig } from '@playwright/test';
+          export default defineConfig({
+            testDir: './tests',
+            workers: 1,
+            reporter: [['list']],
+            use: { browserName: 'chromium' },
+          });
+          EOF
 
       - name: Create test file
         working-directory: qastell-demo
         run: |
-          mkdir -p reports
-          cat > tests/security-demo.spec.ts << 'TESTEOF'
-          import { test, expect } from '@playwright/test';
+          cat > tests/security-demo.spec.ts << 'EOF'
+          import { test } from '@playwright/test';
           import { SecurityAuditor, formatters } from 'qastell';
           import * as fs from 'fs';
           import * as path from 'path';
@@ -71,7 +83,6 @@ jobs:
                 const auditor = new SecurityAuditor(page);
                 const results = await auditor.audit();
 
-                // Write all report formats
                 const slug = target.name.toLowerCase().replace(/\s+/g, '-');
 
                 fs.writeFileSync(
@@ -95,7 +106,6 @@ jobs:
                   results.toJUnit()
                 );
 
-                // Write markdown (for GitHub Actions job summary)
                 const md = formatters.markdown(results.raw, { tier: results.tier });
                 fs.writeFileSync(
                   path.join(REPORTS_DIR, `${slug}.md`),
@@ -111,7 +121,7 @@ jobs:
               });
             }
           });
-          TESTEOF
+          EOF
 
       - name: Run security audits
         working-directory: qastell-demo
@@ -123,7 +133,7 @@ jobs:
         if: always()
         working-directory: qastell-demo
         run: |
-          echo "# QAstell Security Audit Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "# QAstell Playwright Audit Results" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           for md_file in reports/*.md; do
             if [ -f "$md_file" ]; then
@@ -134,11 +144,30 @@ jobs:
             fi
           done
 
+      - name: Merge SARIF files into one
+        if: always()
+        working-directory: qastell-demo
+        run: |
+          node << 'MERGE'
+          const fs = require('fs');
+          const path = require('path');
+          const dir = path.join(__dirname, 'reports');
+          const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif'));
+          if (files.length === 0) { console.log('No SARIF files found'); process.exit(0); }
+          const combined = { $schema: 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json', version: '2.1.0', runs: [] };
+          for (const file of files) {
+            const sarif = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+            combined.runs.push(...sarif.runs);
+          }
+          fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(combined, null, 2));
+          console.log(`Merged ${files.length} SARIF files into combined.sarif (${combined.runs.length} runs)`);
+          MERGE
+
       - name: Upload SARIF to GitHub Security tab
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: qastell-demo/reports/
+          sarif_file: qastell-demo/reports/combined.sarif
           category: qastell-playwright
         continue-on-error: true
 
@@ -233,11 +262,30 @@ jobs:
             fi
           done
 
+      - name: Merge SARIF files into one
+        if: always()
+        working-directory: qastell-demo
+        run: |
+          node << 'MERGE'
+          const fs = require('fs');
+          const path = require('path');
+          const dir = path.join(__dirname, 'reports');
+          const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif'));
+          if (files.length === 0) { console.log('No SARIF files found'); process.exit(0); }
+          const combined = { $schema: 'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/main/sarif-2.1/schema/sarif-schema-2.1.0.json', version: '2.1.0', runs: [] };
+          for (const file of files) {
+            const sarif = JSON.parse(fs.readFileSync(path.join(dir, file), 'utf8'));
+            combined.runs.push(...sarif.runs);
+          }
+          fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(combined, null, 2));
+          console.log(`Merged ${files.length} SARIF files into combined.sarif (${combined.runs.length} runs)`);
+          MERGE
+
       - name: Upload SARIF to GitHub Security tab
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: qastell-demo/reports/
+          sarif_file: qastell-demo/reports/combined.sarif
           category: qastell-puppeteer
         continue-on-error: true
 
