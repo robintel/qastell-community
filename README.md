@@ -241,6 +241,128 @@ npx ts-node quickstart.ts
 
 </details>
 
+## GitHub Actions Integration
+
+This repository includes a [GitHub Actions workflow](./.github/workflows/qastell-demo.yml) that demonstrates QAstell running as a CI/CD security gate. You can [view past runs](https://github.com/robintel/qastell-community/actions/workflows/qastell-demo.yml) to see it in action.
+
+### What the workflow does
+
+The workflow scaffolds projects from scratch (no pre-built code), installs QAstell, and runs security audits against [the-internet.herokuapp.com](https://the-internet.herokuapp.com) &mdash; a public test automation demo site with forms, login pages, and various UI patterns.
+
+It runs two parallel jobs to demonstrate multi-framework support:
+
+| Job | Framework | Pages scanned |
+|-----|-----------|---------------|
+| **Playwright** | Playwright + Chromium | Homepage, Login, Inputs, Dropdown, Checkboxes |
+| **Puppeteer** | Puppeteer (bundled Chrome) | Homepage, Login |
+
+Each job:
+
+1. **Installs** QAstell and the test framework from npm
+2. **Runs** security audits against multiple pages
+3. **Generates reports** in all Corporate-tier formats (HTML, JSON, SARIF, JUnit)
+4. **Fails the build** when violations are found (`assertNoViolations()`)
+5. **Uploads a Markdown summary** to the GitHub Actions job summary
+6. **Uploads SARIF** to [GitHub Code Scanning](https://github.com/robintel/qastell-community/security/code-scanning) so findings appear in the Security tab
+7. **Uploads all reports** as downloadable artifacts
+
+### How to set this up in your own project
+
+#### 1. Create the workflow
+
+Add a workflow file at `.github/workflows/security-audit.yml`:
+
+```yaml
+name: Security Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  security-events: write
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Run security audits
+        env:
+          QASTELL_LICENSE: ${{ secrets.QASTELL_LICENSE }}
+        run: npx playwright test --project=security
+
+      - name: Upload SARIF to GitHub Security
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/security.sarif
+          category: qastell
+        continue-on-error: true
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: reports/
+```
+
+#### 2. Write a test that generates reports
+
+```typescript
+import { test } from '@playwright/test';
+import { SecurityAuditor } from 'qastell';
+import * as fs from 'fs';
+
+test('security audit', async ({ page }) => {
+  await page.goto('https://your-app.com');
+
+  const auditor = new SecurityAuditor(page);
+  const results = await auditor.audit();
+
+  // Generate reports before asserting (so they're available even on failure)
+  fs.mkdirSync('reports', { recursive: true });
+  fs.writeFileSync('reports/security.html', results.toHTML());
+  fs.writeFileSync('reports/security.sarif', results.toSARIF());
+
+  // Fail the build if violations are found
+  await auditor.assertNoViolations();
+});
+```
+
+#### 3. Store your license key
+
+Go to **Settings > Secrets and variables > Actions** and add `QASTELL_LICENSE` with your license key. Secrets are never exposed in logs, even in public repositories.
+
+> **Free tier works too** &mdash; you don't need a paid license to use QAstell in CI. The free tier gives you 10 scans/day with HTML and Markdown reports. SARIF upload requires the Corporate tier.
+
+#### 4. Enable Code Scanning (for SARIF)
+
+To see QAstell findings in your repository's **Security > Code scanning alerts** tab:
+
+1. Go to **Settings > Code security and analysis**
+2. Click **Set up** next to **Code scanning**
+3. Choose **Default** (this enables the infrastructure for third-party SARIF uploads)
+
+### Where to find results
+
+| What | Where |
+|------|-------|
+| Markdown summary | Actions run page (job summary section) |
+| Code scanning alerts | [Security > Code scanning](https://github.com/robintel/qastell-community/security/code-scanning) |
+| HTML/JSON/SARIF/JUnit reports | Actions run page > Artifacts (download as zip) |
+
+---
+
 ## Examples
 
 See the [examples](./EXAMPLES.md) for detailed usage patterns including:
