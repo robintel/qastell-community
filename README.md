@@ -243,7 +243,7 @@ npx ts-node quickstart.ts
 
 ## GitHub Actions Integration
 
-This repository includes a [GitHub Actions workflow](./.github/workflows/qastell-demo.yml) that demonstrates QAstell running as a CI/CD security gate. You can [view past runs](https://github.com/robintel/qastell-community/actions/workflows/qastell-demo.yml) to see it in action.
+This repository includes a [GitHub Actions workflow](./.github/workflows/qastell-demo.yml) that demonstrates QAstell running as a CI/CD security gate. You can [view past runs](https://github.com/robintel/qastell-community/actions/workflows/qastell-demo.yml) to see it in action, or **[browse the latest reports](https://robintel.github.io/qastell-community/)** on GitHub Pages.
 
 ### What the workflow does
 
