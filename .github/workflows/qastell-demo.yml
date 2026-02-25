@@ -151,79 +151,119 @@ jobs:
             fi
           done
 
-      - name: Merge SARIF files and rewrite URIs for GitHub
+      - name: Build composite findings file and SARIF for GitHub
         if: always()
-        working-directory: qastell-demo
         run: |
-          node << 'MERGE'
+          node << 'BUILDsarif'
           const fs = require('fs');
           const path = require('path');
-          const dir = path.join(process.cwd(), 'reports');
-          const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif') && f !== 'combined.sarif');
-          if (files.length === 0) { console.log('No SARIF files found'); process.exit(0); }
 
-          // Use the first file as the base (tool info, schema, etc.)
-          const base = JSON.parse(fs.readFileSync(path.join(dir, files[0]), 'utf8'));
+          const reportsDir = path.join(process.cwd(), 'qastell-demo', 'reports');
+          const repoRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+          const COMPOSITE_FILE = 'security-audit-results.html';
+
+          // ── 1. Read and merge all per-page SARIF files ──────────────
+          const sarifFiles = fs.readdirSync(reportsDir)
+            .filter(f => f.endsWith('.sarif') && f !== 'combined.sarif');
+
+          if (sarifFiles.length === 0) {
+            console.log('No SARIF files found');
+            process.exit(0);
+          }
+
+          const base = JSON.parse(fs.readFileSync(path.join(reportsDir, sarifFiles[0]), 'utf8'));
           const run = base.runs[0];
           const rulesMap = new Map();
           run.tool.driver.rules.forEach(r => rulesMap.set(r.id, r));
           const allResults = [...run.results];
 
-          // Merge remaining files into the single run
-          for (let i = 1; i < files.length; i++) {
-            const sarif = JSON.parse(fs.readFileSync(path.join(dir, files[i]), 'utf8'));
+          for (let i = 1; i < sarifFiles.length; i++) {
+            const sarif = JSON.parse(fs.readFileSync(path.join(reportsDir, sarifFiles[i]), 'utf8'));
             const r = sarif.runs[0];
             r.tool.driver.rules.forEach(rule => rulesMap.set(rule.id, rule));
             allResults.push(...r.results);
           }
 
-          // Rebuild with deduped rules and combined results
           run.tool.driver.rules = [...rulesMap.values()];
           run.results = allResults;
 
-          // Fix ruleIndex references to match the new rules array
           const ruleIds = run.tool.driver.rules.map(r => r.id);
           for (const result of run.results) {
             result.ruleIndex = ruleIds.indexOf(result.ruleId);
           }
 
-          // Rewrite artifact URIs from https:// to relative file paths.
-          // GitHub Code Scanning expects file:// scheme URIs, not https://.
-          // We map URLs to pseudo-paths so findings display correctly.
-          function rewriteUri(uri) {
-            try {
-              const u = new URL(uri);
-              return u.hostname + u.pathname;
-            } catch { return uri; }
+          // ── 2. Build composite file and rewrite SARIF in one pass ───
+          // Group results by page URL (from the original artifact URI)
+          const resultsByPage = new Map();
+          for (const result of run.results) {
+            const uri = result.locations?.[0]?.physicalLocation?.artifactLocation?.uri || 'unknown';
+            if (!resultsByPage.has(uri)) resultsByPage.set(uri, []);
+            resultsByPage.get(uri).push(result);
           }
 
-          // Rewrite artifact locations
-          run.artifacts = (run.artifacts || []).map(a => ({
-            location: { uri: rewriteUri(a.location.uri) }
-          }));
+          const lines = [];
+          lines.push('<!--');
+          lines.push('  QAstell Security Audit Results');
+          lines.push(`  Generated: ${new Date().toISOString()}`);
+          lines.push(`  Pages scanned: ${resultsByPage.size}`);
+          lines.push(`  Total findings: ${run.results.length}`);
+          lines.push('');
+          lines.push('  This file is auto-generated during the CI workflow.');
+          lines.push('  Each finding references the HTML element that triggered it.');
+          lines.push('  GitHub Code Scanning alerts link to specific lines below.');
+          lines.push('-->');
+          lines.push('');
 
-          // Collect all unique rewritten URIs for artifacts
-          const artifactUris = new Set();
+          for (const [pageUrl, results] of resultsByPage) {
+            // Page header
+            const divider = '\u2550'.repeat(62);
+            lines.push(`<!-- ${divider} -->`);
+            lines.push(`<!-- Page: ${pageUrl} -->`);
+            lines.push(`<!-- ${divider} -->`);
+            lines.push('');
 
-          // Rewrite result locations
-          for (const result of run.results) {
-            if (result.locations) {
-              for (const loc of result.locations) {
-                if (loc.physicalLocation?.artifactLocation?.uri) {
-                  loc.physicalLocation.artifactLocation.uri =
-                    rewriteUri(loc.physicalLocation.artifactLocation.uri);
-                  artifactUris.add(loc.physicalLocation.artifactLocation.uri);
-                }
+            for (const result of results) {
+              const rule = run.tool.driver.rules[result.ruleIndex] || {};
+              const severity = rule.properties?.['security-severity'] || '?';
+              const category = rule.properties?.category || '?';
+              const html = result.properties?.html || result.locations?.[0]?.logicalLocations?.[0]?.name || '<!-- element not captured -->';
+
+              // Comment line with rule metadata
+              lines.push(`<!-- [${result.ruleId}] ${rule.name || result.ruleId} | severity: ${severity} | category: ${category} -->`);
+
+              // The HTML element line — this is what SARIF will point to
+              const elementLine = lines.length + 1; // +1 because lines are 0-indexed but line numbers are 1-indexed
+
+              lines.push(html);
+              lines.push('');
+
+              // Rewrite this result's location to point to the composite file
+              if (result.locations?.[0]) {
+                result.locations[0].physicalLocation = {
+                  artifactLocation: { uri: COMPOSITE_FILE },
+                  region: { startLine: elementLine },
+                };
               }
             }
           }
 
-          // Rebuild artifacts from all unique URIs
-          run.artifacts = [...artifactUris].map(uri => ({ location: { uri } }));
+          // ── 3. Set artifacts to reference the composite file ────────
+          run.artifacts = [{ location: { uri: COMPOSITE_FILE } }];
 
-          fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(base, null, 2));
-          console.log(`Merged ${files.length} SARIF files: ${rulesMap.size} rules, ${allResults.length} results`);
-          MERGE
+          // ── 4. Write both files atomically ──────────────────────────
+          const compositeContent = lines.join('\n');
+          const sarifContent = JSON.stringify(base, null, 2);
+
+          // Composite file goes in the repo root (where checkout happened)
+          fs.writeFileSync(path.join(repoRoot, COMPOSITE_FILE), compositeContent);
+
+          // Combined SARIF goes in reports dir
+          fs.writeFileSync(path.join(reportsDir, 'combined.sarif'), sarifContent);
+
+          console.log(`Composite file: ${COMPOSITE_FILE} (${lines.length} lines)`);
+          console.log(`Combined SARIF: ${run.results.length} results across ${resultsByPage.size} pages`);
+          console.log(`Rules: ${rulesMap.size}`);
+          BUILDsarif
 
       - name: Upload SARIF to GitHub Security tab
         if: always()
@@ -336,25 +376,33 @@ jobs:
             fi
           done
 
-      - name: Merge SARIF files and rewrite URIs for GitHub
+      - name: Build composite findings file and SARIF for GitHub
         if: always()
-        working-directory: qastell-demo
         run: |
-          node << 'MERGE'
+          node << 'BUILDsarif'
           const fs = require('fs');
           const path = require('path');
-          const dir = path.join(process.cwd(), 'reports');
-          const files = fs.readdirSync(dir).filter(f => f.endsWith('.sarif') && f !== 'combined.sarif');
-          if (files.length === 0) { console.log('No SARIF files found'); process.exit(0); }
 
-          const base = JSON.parse(fs.readFileSync(path.join(dir, files[0]), 'utf8'));
+          const reportsDir = path.join(process.cwd(), 'qastell-demo', 'reports');
+          const repoRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+          const COMPOSITE_FILE = 'security-audit-results.html';
+
+          const sarifFiles = fs.readdirSync(reportsDir)
+            .filter(f => f.endsWith('.sarif') && f !== 'combined.sarif');
+
+          if (sarifFiles.length === 0) {
+            console.log('No SARIF files found');
+            process.exit(0);
+          }
+
+          const base = JSON.parse(fs.readFileSync(path.join(reportsDir, sarifFiles[0]), 'utf8'));
           const run = base.runs[0];
           const rulesMap = new Map();
           run.tool.driver.rules.forEach(r => rulesMap.set(r.id, r));
           const allResults = [...run.results];
 
-          for (let i = 1; i < files.length; i++) {
-            const sarif = JSON.parse(fs.readFileSync(path.join(dir, files[i]), 'utf8'));
+          for (let i = 1; i < sarifFiles.length; i++) {
+            const sarif = JSON.parse(fs.readFileSync(path.join(reportsDir, sarifFiles[i]), 'utf8'));
             const r = sarif.runs[0];
             r.tool.driver.rules.forEach(rule => rulesMap.set(rule.id, rule));
             allResults.push(...r.results);
@@ -368,34 +416,66 @@ jobs:
             result.ruleIndex = ruleIds.indexOf(result.ruleId);
           }
 
-          function rewriteUri(uri) {
-            try {
-              const u = new URL(uri);
-              return u.hostname + u.pathname;
-            } catch { return uri; }
+          const resultsByPage = new Map();
+          for (const result of run.results) {
+            const uri = result.locations?.[0]?.physicalLocation?.artifactLocation?.uri || 'unknown';
+            if (!resultsByPage.has(uri)) resultsByPage.set(uri, []);
+            resultsByPage.get(uri).push(result);
           }
 
-          run.artifacts = (run.artifacts || []).map(a => ({
-            location: { uri: rewriteUri(a.location.uri) }
-          }));
+          const lines = [];
+          lines.push('<!--');
+          lines.push('  QAstell Security Audit Results');
+          lines.push(`  Generated: ${new Date().toISOString()}`);
+          lines.push(`  Pages scanned: ${resultsByPage.size}`);
+          lines.push(`  Total findings: ${run.results.length}`);
+          lines.push('');
+          lines.push('  This file is auto-generated during the CI workflow.');
+          lines.push('  Each finding references the HTML element that triggered it.');
+          lines.push('  GitHub Code Scanning alerts link to specific lines below.');
+          lines.push('-->');
+          lines.push('');
 
-          const artifactUris = new Set();
-          for (const result of run.results) {
-            if (result.locations) {
-              for (const loc of result.locations) {
-                if (loc.physicalLocation?.artifactLocation?.uri) {
-                  loc.physicalLocation.artifactLocation.uri =
-                    rewriteUri(loc.physicalLocation.artifactLocation.uri);
-                  artifactUris.add(loc.physicalLocation.artifactLocation.uri);
-                }
+          for (const [pageUrl, results] of resultsByPage) {
+            const divider = '\u2550'.repeat(62);
+            lines.push(`<!-- ${divider} -->`);
+            lines.push(`<!-- Page: ${pageUrl} -->`);
+            lines.push(`<!-- ${divider} -->`);
+            lines.push('');
+
+            for (const result of results) {
+              const rule = run.tool.driver.rules[result.ruleIndex] || {};
+              const severity = rule.properties?.['security-severity'] || '?';
+              const category = rule.properties?.category || '?';
+              const html = result.properties?.html || result.locations?.[0]?.logicalLocations?.[0]?.name || '<!-- element not captured -->';
+
+              lines.push(`<!-- [${result.ruleId}] ${rule.name || result.ruleId} | severity: ${severity} | category: ${category} -->`);
+
+              const elementLine = lines.length + 1;
+              lines.push(html);
+              lines.push('');
+
+              if (result.locations?.[0]) {
+                result.locations[0].physicalLocation = {
+                  artifactLocation: { uri: COMPOSITE_FILE },
+                  region: { startLine: elementLine },
+                };
               }
             }
           }
-          run.artifacts = [...artifactUris].map(uri => ({ location: { uri } }));
 
-          fs.writeFileSync(path.join(dir, 'combined.sarif'), JSON.stringify(base, null, 2));
-          console.log(`Merged ${files.length} SARIF files: ${rulesMap.size} rules, ${allResults.length} results`);
-          MERGE
+          run.artifacts = [{ location: { uri: COMPOSITE_FILE } }];
+
+          const compositeContent = lines.join('\n');
+          const sarifContent = JSON.stringify(base, null, 2);
+
+          fs.writeFileSync(path.join(repoRoot, COMPOSITE_FILE), compositeContent);
+          fs.writeFileSync(path.join(reportsDir, 'combined.sarif'), sarifContent);
+
+          console.log(`Composite file: ${COMPOSITE_FILE} (${lines.length} lines)`);
+          console.log(`Combined SARIF: ${run.results.length} results across ${resultsByPage.size} pages`);
+          console.log(`Rules: ${rulesMap.size}`);
+          BUILDsarif
 
       - name: Upload SARIF to GitHub Security tab
         if: always()
