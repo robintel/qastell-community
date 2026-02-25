@@ -1,0 +1,249 @@
+# QAstell Security Audit Demo
+#
+# Demonstrates QAstell integration in a CI/CD pipeline.
+# Uses the same approach as the README one-liners, extended with
+# Corporate-tier report generation (HTML, JSON, SARIF, JUnit).
+#
+# Trigger: manual only (workflow_dispatch) — only repo collaborators
+# with write access can trigger this. An additional actor check
+# restricts execution to the repository owner.
+#
+# Secret required: QASTELL_LICENSE (Corporate license key)
+
+name: QAstell Security Demo
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # ─── Playwright ──────────────────────────────────────────────
+  playwright:
+    name: Playwright Security Audit
+    runs-on: ubuntu-latest
+    if: github.actor == 'robintel'
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Scaffold Playwright project
+        run: npx -y create-playwright@latest qastell-demo --quiet
+
+      - name: Install QAstell
+        working-directory: qastell-demo
+        run: npm i qastell
+
+      - name: Install Chromium
+        working-directory: qastell-demo
+        run: npx playwright install chromium
+
+      - name: Create test file
+        working-directory: qastell-demo
+        run: |
+          mkdir -p reports
+          cat > tests/security-demo.spec.ts << 'TESTEOF'
+          import { test, expect } from '@playwright/test';
+          import { SecurityAuditor, formatters } from 'qastell';
+          import * as fs from 'fs';
+          import * as path from 'path';
+
+          const REPORTS_DIR = path.join(process.cwd(), 'reports');
+          const BASE_URL = 'https://the-internet.herokuapp.com';
+
+          const PAGES = [
+            { path: '/', name: 'Homepage' },
+            { path: '/login', name: 'Login Page' },
+            { path: '/inputs', name: 'Inputs Page' },
+            { path: '/dropdown', name: 'Dropdown Page' },
+            { path: '/checkboxes', name: 'Checkboxes Page' },
+          ];
+
+          test.describe('QAstell Security Audit Demo', () => {
+            test.setTimeout(60_000);
+
+            for (const target of PAGES) {
+              test(`audit ${target.name} (${target.path})`, async ({ page }) => {
+                await page.goto(`${BASE_URL}${target.path}`);
+                await page.waitForLoadState('networkidle');
+
+                const auditor = new SecurityAuditor(page);
+                const results = await auditor.audit();
+
+                // Write all report formats
+                const slug = target.name.toLowerCase().replace(/\s+/g, '-');
+
+                fs.writeFileSync(
+                  path.join(REPORTS_DIR, `${slug}.html`),
+                  results.toHTML()
+                );
+                fs.writeFileSync(
+                  path.join(REPORTS_DIR, `${slug}-summary.html`),
+                  results.toSummaryHTML()
+                );
+                fs.writeFileSync(
+                  path.join(REPORTS_DIR, `${slug}.json`),
+                  results.toJSON()
+                );
+                fs.writeFileSync(
+                  path.join(REPORTS_DIR, `${slug}.sarif`),
+                  results.toSARIF()
+                );
+                fs.writeFileSync(
+                  path.join(REPORTS_DIR, `${slug}.junit.xml`),
+                  results.toJUnit()
+                );
+
+                // Write markdown (for GitHub Actions job summary)
+                const md = formatters.markdown(results.raw, { tier: results.tier });
+                fs.writeFileSync(
+                  path.join(REPORTS_DIR, `${slug}.md`),
+                  md
+                );
+
+                console.log(`${target.name}: ${results.summary.total} issues`);
+                console.log(`  Critical: ${results.summary.bySeverity.critical}`);
+                console.log(`  High:     ${results.summary.bySeverity.high}`);
+                console.log(`  Medium:   ${results.summary.bySeverity.medium}`);
+                console.log(`  Low:      ${results.summary.bySeverity.low}`);
+                console.log(`  Info:     ${results.summary.bySeverity.info}`);
+              });
+            }
+          });
+          TESTEOF
+
+      - name: Run security audits
+        working-directory: qastell-demo
+        env:
+          QASTELL_LICENSE: ${{ secrets.QASTELL_LICENSE }}
+        run: npx playwright test security-demo --reporter=list --workers=1
+
+      - name: Post markdown summary to job
+        if: always()
+        working-directory: qastell-demo
+        run: |
+          echo "# QAstell Security Audit Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          for md_file in reports/*.md; do
+            if [ -f "$md_file" ]; then
+              cat "$md_file" >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "---" >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+      - name: Upload SARIF to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: qastell-demo/reports/
+          category: qastell-playwright
+        continue-on-error: true
+
+      - name: Upload all reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qastell-playwright-reports
+          path: qastell-demo/reports/
+
+  # ─── Puppeteer ───────────────────────────────────────────────
+  puppeteer:
+    name: Puppeteer Security Audit
+    runs-on: ubuntu-latest
+    if: github.actor == 'robintel'
+
+    steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Scaffold project and install dependencies
+        run: |
+          mkdir -p qastell-demo/reports
+          cd qastell-demo
+          npm init -y
+          npm i qastell puppeteer
+
+      - name: Run security audit
+        working-directory: qastell-demo
+        env:
+          QASTELL_LICENSE: ${{ secrets.QASTELL_LICENSE }}
+        run: |
+          node << 'SCRIPT'
+          const puppeteer = require('puppeteer');
+          const { SecurityAuditor, formatters } = require('qastell');
+          const fs = require('fs');
+          const path = require('path');
+
+          const REPORTS_DIR = path.join(__dirname, 'reports');
+          const BASE_URL = 'https://the-internet.herokuapp.com';
+
+          const PAGES = [
+            { path: '/', name: 'Homepage' },
+            { path: '/login', name: 'Login Page' },
+          ];
+
+          (async () => {
+            const browser = await puppeteer.launch({
+              headless: true,
+              args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            });
+
+            for (const target of PAGES) {
+              const page = await browser.newPage();
+              await page.goto(`${BASE_URL}${target.path}`, { waitUntil: 'networkidle0' });
+
+              const auditor = new SecurityAuditor(page);
+              const results = await auditor.audit();
+
+              const slug = target.name.toLowerCase().replace(/\s+/g, '-');
+              fs.writeFileSync(path.join(REPORTS_DIR, `${slug}.html`), results.toHTML());
+              fs.writeFileSync(path.join(REPORTS_DIR, `${slug}.json`), results.toJSON());
+              fs.writeFileSync(path.join(REPORTS_DIR, `${slug}.sarif`), results.toSARIF());
+
+              const md = formatters.markdown(results.raw, { tier: results.tier });
+              fs.writeFileSync(path.join(REPORTS_DIR, `${slug}.md`), md);
+
+              console.log(`${target.name}: ${results.summary.total} issues`);
+              console.log(`  Critical: ${results.summary.bySeverity.critical} | High: ${results.summary.bySeverity.high}`);
+
+              await page.close();
+            }
+
+            await browser.close();
+          })();
+          SCRIPT
+
+      - name: Post markdown summary to job
+        if: always()
+        working-directory: qastell-demo
+        run: |
+          echo "# QAstell Puppeteer Audit Results" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          for md_file in reports/*.md; do
+            if [ -f "$md_file" ]; then
+              cat "$md_file" >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "---" >> "$GITHUB_STEP_SUMMARY"
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+      - name: Upload SARIF to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: qastell-demo/reports/
+          category: qastell-puppeteer
+        continue-on-error: true
+
+      - name: Upload all reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qastell-puppeteer-reports
+          path: qastell-demo/reports/
