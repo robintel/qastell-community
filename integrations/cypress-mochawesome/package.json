@@ -11,8 +11,8 @@
     "clean": "rm -rf cypress/results cypress/reports cypress/screenshots"
   },
   "dependencies": {
-    "cypress": "^15.0.0",
-    "cypress-mochawesome-reporter": "^3.8.0",
+    "cypress": "^15.11.0",
+    "cypress-mochawesome-reporter": "^4.0.0",
     "qastell": "^0.9.0"
   },
   "devDependencies": {

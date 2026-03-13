@@ -12,9 +12,9 @@
     "clean": "rm -rf reports qastell-report"
   },
   "dependencies": {
-    "@cucumber/cucumber": "^11.0.0",
-    "@playwright/test": "^1.57.0",
-    "multiple-cucumber-html-reporter": "^3.8.0",
+    "@cucumber/cucumber": "^12.0.0",
+    "@playwright/test": "^1.58.0",
+    "multiple-cucumber-html-reporter": "^3.10.0",
     "qastell": "^0.9.0"
   },
   "devDependencies": {
