@@ -20,7 +20,7 @@
     "@wdio/spec-reporter": "^9.25.0",
     "allure-commandline": "^2.38.0",
     "expect-webdriverio": "^5.0.0",
-    "qastell": "^0.9.4"
+    "qastell": "^0.9.5"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.0",
