@@ -10,7 +10,7 @@
 
 QAstell is a security audit library that integrates directly into your Playwright tests, Puppeteer scripts, Cypress tests, or Selenium WebDriver automation. It scans your web application for common security vulnerabilities and misconfigurations as part of your regular testing workflow.
 
-With 250+ security rules across 48 categories, QAstell checks for issues like:
+With 714+ security rules across 50+ categories, QAstell checks for issues like:
 - Missing or misconfigured security headers (CSP, X-Frame-Options, etc.)
 - Unsafe form configurations (autocomplete on passwords, missing CSRF tokens)
 - Insecure external links (missing `rel="noopener"`)
